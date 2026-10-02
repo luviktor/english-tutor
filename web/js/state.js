@@ -1,4 +1,4 @@
-// Everything Nóra has achieved. One JSON object, saved to data/progress.json via the server.
+// Everything Nóra has achieved. One JSON object, saved via api.js (server.py -> data/progress.json, or localStorage on static hosting).
 //
 // words[key] = { lvl 0..5, ok, bad, last, upDay, upCount }   (key = lower-case English word)
 //   lvl: 0 = just met, 1-2 = learning, 3-4 = knows it, 5 = mastered (gold sticker)

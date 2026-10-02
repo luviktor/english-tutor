@@ -24,7 +24,7 @@ export function visual(word, extraClass = '') {
     return el('span', { class: `swatch ${extraClass}`, style: { background: v.slice(6).trim() } });
   }
   if (v.startsWith('img:')) {
-    return el('img', { class: `pic ${extraClass}`, src: '/img/' + v.slice(4).trim(), alt: '' });
+    return el('img', { class: `pic ${extraClass}`, src: 'img/' + v.slice(4).trim(), alt: '' });
   }
   return el('span', { class: `emoji ${extraClass}` }, v);
 }
