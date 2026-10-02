@@ -4,6 +4,8 @@ import { loadDictionary } from './dict.js';
 import { initSpeech } from './speech.js';
 import { register, go } from './router.js';
 import { initHud } from './hud.js';
+import { isAuthenticated } from './auth.js';
+import { runSplash } from './splash.js';
 
 import * as home from './screens/home.js';
 import * as topics from './screens/topics.js';
@@ -37,8 +39,12 @@ function initBackground() {
 
 async function boot() {
   initBackground();
+  // Loading runs behind the splash screen, so the game is ready the moment the code is accepted.
+  const loading = Promise.all([loadState(), loadDictionary(), initSpeech()]);
+  loading.catch(() => {}); // reported below, once the splash is gone
+  if (!isAuthenticated()) await runSplash();
   try {
-    await Promise.all([loadState(), loadDictionary(), initSpeech()]);
+    await loading;
   } catch (err) {
     console.error(err);
     $('#app').replaceChildren(el('div', { class: 'card error-card' },

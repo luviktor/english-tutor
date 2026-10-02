@@ -28,6 +28,23 @@ practice most and introduce at most a few new words at a time (shown on an "Új 
 **⚙️ Szülőknek** (button on the home screen, asks a multiplication): progress overview, last 14 days,
 hardest words, voice / speed / sound / daily goal / name, dictionary status and warnings, reset.
 
+## Splash screen and access code
+
+Every browser first sees an animated splash screen ("English Tutor for Erkel" and a picture of the
+school), then a box that asks for the access code. A valid code puts a cookie
+(`erkel_tutor_auth=1`) in the browser – only the fact that it is unlocked, no code and no name – and
+from then on the splash is skipped. With **Maradjak belépve** ticked the cookie lasts a year,
+otherwise only until the browser is closed. A tap or key press during the animation jumps straight
+to the code box.
+
+* Codes: the `CODES` list at the top of `web/js/auth.js` (default `ERKEL`). Upper/lower case, accents,
+  spaces and dashes are ignored.
+* The page is static, so the codes can be read in the source: this keeps strangers out of a children's
+  app, it is not real security.
+* To see the splash again, delete the cookie (browser dev tools → Application → Cookies) or use a
+  private window.
+* The school picture is an illustration drawn in `web/js/splash-art.js`.
+
 ## The dictionary – `data/dictionary.csv`
 
 Open it in Excel (or Notepad), add or change rows, save as **CSV** (keep it UTF-8 if Excel offers the
@@ -65,6 +82,8 @@ To start from zero: use the reset button in the parents' corner, or delete `data
 | Shop items and prices | `web/js/shop-items.js` |
 | Level names and XP curve | `web/js/levels.js` |
 | Mascot phrases | `web/js/strings.js` |
+| Access codes, cookie lifetime | `web/js/auth.js` |
+| Splash screen: picture, texts, timing | `web/js/splash-art.js`, `web/js/splash.js`, section "splash" in `web/css/style.css` |
 | Colours, look | `web/css/style.css` |
 
 ## Troubleshooting
