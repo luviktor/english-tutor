@@ -75,3 +75,16 @@ To start from zero: use the reset button in the parents' corner, or delete `data
 * **Page says it cannot reach the server** – start `start.bat` first.
 * **Port 8765 busy** – the program is probably already running; just open `http://127.0.0.1:8765/`.
   (The port can be changed at the top of `server.py`.)
+
+## GitHub Pages (online version)
+
+The game also runs as a static site, without `server.py`. `tools/build_pages.py` copies `web/` to `_site/`
+and pre-renders the dictionary to `dictionary.json`; a GitHub Actions workflow
+(`.github/workflows/pages.yml`) does this and deploys on every push to `master`/`main`.
+
+* In this mode progress is stored in the **browser's localStorage** (per browser and device, not shared;
+  clearing site data erases it). The local `server.py` version keeps using `data/progress.json`.
+* Edit `data/dictionary.csv`, push, and the site is rebuilt.
+* Try it locally: `py tools/build_pages.py`, then `py -m http.server 8766 --directory _site`.
+
+One-time setup: repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.

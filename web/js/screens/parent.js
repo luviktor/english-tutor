@@ -131,7 +131,7 @@ export function render(app) {
             }
           },
         }, 'Mindent törlök')),
-      el('p', { class: 'small center' }, 'Az eredmények a data/progress.json fájlban vannak.'));
+      el('p', { class: 'small center' }, 'Az eredmények ezen a gépen, ebben a böngészőben vannak elmentve.'));
   }
 }
 
