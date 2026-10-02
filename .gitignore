@@ -51,3 +51,6 @@ data/*.json
 # Node (if used in future)
 node_modules/
 npm-debug.log
+
+# GitHub Pages build output
+_site/
