@@ -60,6 +60,19 @@ public sealed class CosmosProgressStore(CosmosClient client, bool createIfMissin
         }
     }
 
+    public async Task<IReadOnlyList<ProgressSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken)
+    {
+        var container = await ContainerAsync(cancellationToken);
+        var query = new QueryDefinition("SELECT c.id, c.revision, c.updatedAt, c.summary FROM c");
+        var rows = new List<ProgressSummaryRow>();
+        using var iterator = container.GetItemQueryIterator<ProgressSummaryRow>(query);
+        while (iterator.HasMoreResults)
+        {
+            rows.AddRange(await iterator.ReadNextAsync(cancellationToken));
+        }
+        return rows;
+    }
+
     private async Task<Container> ContainerAsync(CancellationToken cancellationToken)
     {
         if (_container is not null) return _container;

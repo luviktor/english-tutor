@@ -37,6 +37,9 @@ public sealed class ProgressService(IProgressStore store, TimeProvider time)
             : await ConflictAsync(pupilId, cancellationToken);
     }
 
+    public Task<IReadOnlyList<ProgressSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken) =>
+        store.ListSummariesAsync(cancellationToken);
+
     private async Task<SaveResult> ConflictAsync(string pupilId, CancellationToken cancellationToken) =>
         new(false, (await store.GetAsync(pupilId, cancellationToken))?.Document);
 }

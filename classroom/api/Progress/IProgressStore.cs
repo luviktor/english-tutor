@@ -9,4 +9,7 @@ public interface IProgressStore
 
     /// <summary>False when the document changed since it was read with <paramref name="etag"/>.</summary>
     Task<bool> TryReplaceAsync(ProgressDocument document, string etag, CancellationToken cancellationToken);
+
+    /// <summary>Every pupil's summary, without the (bigger) data.</summary>
+    Task<IReadOnlyList<ProgressSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken);
 }

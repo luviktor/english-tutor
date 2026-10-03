@@ -15,5 +15,8 @@ public sealed record ProgressDocument(
     ProgressSummary Summary,
     JsonElement Data);
 
+/// <summary>The class table's view of a document: everything but the data.</summary>
+public sealed record ProgressSummaryRow(string Id, int Revision, DateTimeOffset UpdatedAt, ProgressSummary Summary);
+
 /// <param name="ETag">Changes with every write; used for optimistic concurrency.</param>
 public sealed record StoredProgress(ProgressDocument Document, string ETag);

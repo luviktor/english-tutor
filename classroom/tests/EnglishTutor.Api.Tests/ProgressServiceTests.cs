@@ -94,5 +94,10 @@ public class ProgressServiceTests
             Put(document);
             return Task.FromResult(true);
         }
+
+        public Task<IReadOnlyList<ProgressSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<ProgressSummaryRow>>(_documents.Values
+                .Select(s => new ProgressSummaryRow(s.Document.Id, s.Document.Revision, s.Document.UpdatedAt, s.Document.Summary))
+                .ToList());
     }
 }
