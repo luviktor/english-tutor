@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "COSMOS_CONNECTION_STRING": "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+    "PUPILS_JSON": "[{\"id\":\"p01\",\"name\":\"Teszt Anna\",\"password\":\"teszt-roka-1\"},{\"id\":\"p02\",\"name\":\"Teszt Bence\",\"password\":\"teszt-bagoly-2\"}]",
+    "TEACHER_PASSWORD": "teszt-tanar-jelszo"
+  }
+}

@@ -1,0 +1,42 @@
+name: Deploy to Azure Static Web Apps
+
+# Deploys classroom/ (frontend + EnglishTutor.Api) to swa-englishtutor. Only master is deployed:
+# preview environments would get the production environment variables and so the production database.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'classroom/**'
+      - '.github/workflows/azure-static-web-apps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-static-web-apps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test
+        run: dotnet test classroom/EnglishTutor.slnx --configuration Release
+      - name: Build the API
+        run: dotnet publish classroom/api/EnglishTutor.Api.csproj --configuration Release --output _publish/api
+      - name: Deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: classroom/web
+          api_location: _publish/api
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true

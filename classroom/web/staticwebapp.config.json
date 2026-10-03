@@ -1,0 +1,19 @@
+{
+  "platform": {
+    "apiRuntime": "dotnet-isolated:10.0"
+  },
+  "routes": [
+    { "route": "/index.html", "headers": { "Cache-Control": "no-cache" } },
+    { "route": "/js/*", "headers": { "Cache-Control": "no-cache" } },
+    { "route": "/css/*", "headers": { "Cache-Control": "no-cache" } }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/api/*", "/js/*", "/css/*", "/img/*"]
+  },
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    "Referrer-Policy": "same-origin",
+    "X-Content-Type-Options": "nosniff"
+  }
+}
