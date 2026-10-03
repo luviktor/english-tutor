@@ -206,6 +206,7 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .login-busy[hidden] { display: none; }
 .login-busy .spinner { width: 22px; height: 22px; border-width: 3px; flex: none; }
 .chip-user { max-width: 11em; }
+.icon { display: inline-grid; place-items: center; color: var(--ink-soft); }
 .user-name { overflow: hidden; text-overflow: ellipsis; }
 
 /* ------------------------------------------------------------------- home */
@@ -474,6 +475,40 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .warn-box ul { margin: 4px 0 0; padding-left: 20px; }
 .chip-topic { background: var(--surface-2); border-left: 5px solid var(--c); border-radius: 10px; padding: 4px 10px; font-size: .9rem; }
 .danger { border-color: #f6c6d1; }
+
+/* ---------------------------------------------------------------- teacher */
+.teacher { display: flex; flex-direction: column; gap: 16px; }
+.teacher .screen-head { margin-bottom: 0; }
+.teacher h3 { margin-bottom: 8px; }
+.teacher-kpis { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); margin: 0; }
+.teacher-kpis .kpi { background: var(--surface); box-shadow: var(--shadow); }
+.table-card { padding: 8px 8px 14px; }
+.table-wrap { overflow-x: auto; }
+.class-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.class-table th { text-align: left; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); border-bottom: 1px solid var(--line); padding: 0; }
+.th-sort { background: none; border: 0; padding: 12px 12px 10px; font: inherit; color: inherit; font-weight: 800; letter-spacing: inherit; text-transform: inherit; white-space: nowrap; }
+.th-sort:hover { color: var(--primary); }
+.class-table th[aria-sort="ascending"] .th-sort, .class-table th[aria-sort="descending"] .th-sort { color: var(--primary); }
+.class-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.class-table tbody tr:last-child td { border-bottom: 0; }
+.class-table tbody tr:hover td { background: var(--surface-2); }
+.class-table td small { display: block; color: var(--ink-soft); font-size: .8rem; }
+.class-table .num { white-space: nowrap; }
+.class-table .nowrap, .class-table td:first-child { white-space: nowrap; }
+.class-table .lv { font-family: var(--emoji); }
+.class-table tr.idle td { color: var(--ink-faint); }
+.class-table .muted { color: var(--ink-faint); font-style: italic; }
+.word-bar { display: flex; width: 170px; height: 10px; border-radius: 99px; overflow: hidden; background: var(--line); margin-bottom: 4px; }
+.word-bar i { display: block; height: 100%; }
+.g-new { background: #c7cde0; } .g-learning { background: var(--blue); } .g-known { background: var(--green); } .g-gold { background: var(--gold); } .g-none { background: var(--line); }
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 30px; width: 112px; }
+.spark i { flex: 1; background: var(--primary); border-radius: 2px 2px 0 0; min-height: 2px; }
+.spark i.zero { background: var(--line); }
+.teacher-legend { margin: 12px 12px 0; font-size: .85rem; color: var(--ink-soft); gap: 14px; }
+.teacher-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.teacher-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.warn-card { border-color: #f6d58e; background: #fffbf0; }
+.warn-card ul { margin: 6px 0 0; padding-left: 20px; }
 
 /* ----------------------------------------------------------- responsive */
 @media (max-width: 820px) {

@@ -27,8 +27,16 @@ There are no accounts: the teacher lists the pupils and their passwords in the A
   their password changes. Changing a password logs the pupil out on every device.
 * The browser keeps the password, so a pupil types it once per device. On shared school computers they
   should log out (the name chip at the top right).
-* Mistakes in `PUPILS_JSON` (duplicate ids or passwords, missing names) skip that pupil and are logged
-  without the passwords.
+* Mistakes in `PUPILS_JSON` (duplicate ids or passwords, missing names) skip that pupil; they are logged and
+  shown in the teacher's view, without the passwords.
+
+## Teacher's view
+
+With `TEACHER_PASSWORD` the login opens the class table instead of the game: every pupil with level and XP,
+words per level (new / learning / known / gold), accuracy, current and longest streak, answers in the last
+14 days and when they last played. Columns sort on click. Below it: problems in the pupil list and the
+dictionary's status with its warnings. The data is the summary each pupil's last save stored, so it's
+always up to date and cheap to read. A teacher who wants to play adds themself to `PUPILS_JSON`.
 
 ## Saving
 
@@ -54,6 +62,7 @@ All endpoints except the dictionary and login need the password in the `X-Englis
 | `POST /api/login` | anyone | `{"password": "..."}` → `{ id, name, role }` (`pupil` or `teacher`), or 401 |
 | `GET /api/progress` | pupil | `{ revision, updatedAt, data }`, or 204 when there is nothing yet |
 | `PUT /api/progress` | pupil | `{ revision, data }` → `{ revision, updatedAt }`; 409 with the newer copy when `revision` is stale |
+| `GET /api/teacher/class` | teacher | `{ pupils: [{ id, name, revision, updatedAt, summary }], problems }`; `summary` is null for pupils who haven't played |
 
 ## Run it locally
 

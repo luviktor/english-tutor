@@ -8,6 +8,7 @@ import { initHud } from './hud.js';
 import { toast } from './fx.js';
 
 import * as login from './screens/login.js';
+import * as teacher from './screens/teacher.js';
 import * as home from './screens/home.js';
 import * as topics from './screens/topics.js';
 import * as learn from './screens/learn.js';
@@ -44,14 +45,14 @@ function showError() {
 async function start(identity) {
   app.className = 'screen';
   app.replaceChildren(loading('Töltés…'));
-  if (identity.role !== 'pupil') {
-    app.replaceChildren(el('div', { class: 'card error-card' },
-      el('div', { class: 'big-emoji' }, '🧑‍🏫'),
-      el('h2', {}, 'Tanári belépés'),
-      el('p', {}, 'Az osztály áttekintése hamarosan itt lesz.')));
-    return;
-  }
   try {
+    if (identity.role === 'teacher') {
+      await loadDictionary();
+      app.replaceChildren();
+      app.className = 'screen screen-teacher';
+      teacher.render(app);
+      return;
+    }
     await Promise.all([loadState(identity), loadDictionary(), initSpeech()]);
   } catch (err) {
     console.error(err);

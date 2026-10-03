@@ -71,3 +71,6 @@ export const loadProgress = () => request('GET', 'progress');
 /** Resolves to { revision, updatedAt }; a stale revision throws ApiError(409) with the newer copy as body. */
 export const saveProgress = (data, revision, { keepalive = false } = {}) =>
   request('PUT', 'progress', { body: { revision, data }, keepalive });
+
+/** Teacher only: { pupils: [{ id, name, revision, updatedAt, summary }], problems: [...] }. */
+export const getClass = () => request('GET', 'teacher/class');

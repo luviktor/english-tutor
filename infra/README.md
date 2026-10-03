@@ -63,7 +63,8 @@ The passwords are best typed in the portal, so they don't end up in the shell hi
   Keep the list with the real passwords outside the repository.
 
 Select **Apply**. The API restarts with the new values; changing a pupil's password logs that pupil out on
-every device, while their progress (stored by `id`) stays. Problems in the list are written to the API's log.
+every device, while their progress (stored by `id`) stays. Problems in the list are written to the API's log
+and shown in the teacher's view.
 
 ## 4. Connect GitHub
 

@@ -6,6 +6,7 @@ import { levelInfo } from './levels.js';
 import { go, onScreen } from './router.js';
 import { APP_TITLE } from './strings.js';
 import { logout } from './account.js';
+import { logoutIcon } from './ui.js';
 
 let refs = null;
 let last = { stars: null, streak: null, level: null };
@@ -30,7 +31,7 @@ export function initHud() {
     el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'), el('span', { class: 'hud-title' }, APP_TITLE)),
     el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip,
       el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout },
-        el('span', { class: 'user-name' }, state.pupil.name), el('span', { 'aria-hidden': 'true' }, '⏏')))));
+        el('span', { class: 'user-name' }, state.pupil.name), logoutIcon()))));
   onChange(update);
   onScreen(name => { refs.home.classList.toggle('hidden', name === 'home'); });
   update();

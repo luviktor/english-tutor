@@ -63,6 +63,13 @@ export function confirmDialog(message, { yes = 'Igen', no = 'MÃ©gse', icon = 'ðŸ
 
 export const modalOpen = () => !!document.querySelector('.modal-back');
 
+/** A door with an arrow pointing out, for the logout buttons. */
+export const logoutIcon = () => el('span', {
+  class: 'icon', 'aria-hidden': 'true',
+  html: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
+});
+
 /** Top strip of a game: exit button, title, progress bar, combo and counter. */
 export function gameBar({ title, onExit }) {
   const fill = el('i');
