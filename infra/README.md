@@ -41,6 +41,21 @@ If the deployment fails with a free-tier error, another account in the subscript
 
 Check in the portal that the Cosmos DB account's **Overview** shows *Free Tier Discount: Opted In*.
 
+## 3. Connect GitHub
+
+The workflow `.github/workflows/azure-static-web-apps.yml` deploys with the Static Web App's deployment
+token. Store it as the repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`:
+
+```bash
+az staticwebapp secrets list --name swa-englishtutor --resource-group rg-englishtutor --query properties.apiKey --output tsv
+```
+
+Copy the output to GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
+Then push to `master` (or run the workflow by hand from the **Actions** tab). The app's address is the
+`staticWebAppUrl` output of the deployment, also shown on the Static Web App's **Overview** page.
+
+If the token leaks, reset it with `az staticwebapp secrets reset-api-key` and update the secret.
+
 ## Don't create
 
 Key Vault, App Service plans, Container Registry, Front Door: none of them is free. If you enable

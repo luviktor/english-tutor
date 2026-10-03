@@ -59,4 +59,4 @@ _site/
 bin/
 obj/
 classroom/api/local.settings.json
-classroom/api/publish/
+_publish/

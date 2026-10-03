@@ -5,7 +5,7 @@
       "appLocation": "web",
       "outputLocation": ".",
       "apiDevserverUrl": "http://localhost:7071",
-      "run": "func start --script-root api",
+      "run": "func start --script-root ../api",
       "devserverTimeout": 120
     }
   }
