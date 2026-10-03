@@ -2,7 +2,7 @@
 
 import { el } from '../util.js';
 import { state, wordRec, introduce, addXP, touchStreak, commit } from '../state.js';
-import { wordsOf, topicInfo, visual } from '../dict.js';
+import { wordsOf, topicInfo, visualOrInitial } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -35,7 +35,7 @@ export function render(app, { topic }) {
     const c = coach('Mondd ki hangosan te is!');
     stage.replaceChildren(
       el('div', { class: 'learn-card pop' },
-        visual(w, 'learn-visual'),
+        visualOrInitial(w, 'learn-visual'),
         el('div', { class: 'learn-en' }, w.english),
         el('div', { class: 'learn-hu' }, w.hu),
         el('div', { class: 'learn-tools' }, speakerBtn(w.english, { big: true }), speakerBtn(w.english, { slow: true, big: true }))),

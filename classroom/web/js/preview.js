@@ -2,7 +2,7 @@
 
 import { el, sleep } from './util.js';
 import { introduce } from './state.js';
-import { visual } from './dict.js';
+import { visualOrInitial } from './dict.js';
 import { speak } from './speech.js';
 import { sfx } from './sound.js';
 import { coach } from './ui.js';
@@ -15,7 +15,7 @@ export function showPreview(stage, words) {
     const cards = words.map(w => el('button', {
       class: 'pv-card', type: 'button',
       onclick: () => { token++; sfx('pop'); speak(w.english); },
-    }, visual(w, 'pv-visual'), el('div', { class: 'pv-en' }, w.english), el('div', { class: 'pv-hu' }, w.hu)));
+    }, visualOrInitial(w, 'pv-visual'), el('div', { class: 'pv-en' }, w.english), el('div', { class: 'pv-hu' }, w.hu)));
 
     const playAll = async () => {
       const mine = ++token;
