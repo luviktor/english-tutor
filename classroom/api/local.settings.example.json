@@ -1,6 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "PUPILS_JSON": "[{\"id\":\"p01\",\"name\":\"Teszt Anna\",\"password\":\"teszt-roka-1\"},{\"id\":\"p02\",\"name\":\"Teszt Bence\",\"password\":\"teszt-bagoly-2\"}]",
+    "TEACHER_PASSWORD": "teszt-tanar-jelszo"
   }
 }
