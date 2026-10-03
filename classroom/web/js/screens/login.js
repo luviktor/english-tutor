@@ -4,6 +4,7 @@
 import { el } from '../util.js';
 import * as api from '../api.js';
 import { APP_TITLE } from '../strings.js';
+import { schoolWireframeSvg } from '../school-wireframe.js';
 
 /** Fills `app`; calls onLogin({ id, name, role }) after a successful login. */
 export function render(app, { onLogin, message = '' }) {
@@ -50,7 +51,9 @@ export function render(app, { onLogin, message = '' }) {
   }
 
   app.append(el('form', { class: 'card login-card', onsubmit: tryLogin },
-    el('div', { class: 'login-logo', 'aria-hidden': 'true' }, 'Aa'),
+    el('div', { class: 'login-school' },
+      el('div', { html: schoolWireframeSvg() }),
+      el('div', { class: 'login-school-name', 'aria-hidden': 'true' }, 'Erkel Ferenc Általános Iskola')),
     el('h1', { class: 'title' }, APP_TITLE),
     el('p', { class: 'lead' }, 'Írd be a jelszavadat, amit a tanárodtól kaptál.'),
     el('div', { class: 'login-row' }, input, toggle),
