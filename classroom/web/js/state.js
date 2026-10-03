@@ -250,10 +250,11 @@ export function recordAnswer(key, outcome, game) {
 // ------------------------------------------------------------ days & streak
 
 const emptyDay = () => ({ answers: 0, correct: 0, done: 0, xp: 0, goalDone: false });
-export const peekToday = () => state.data.days[todayStr()] || emptyDay();
+// Spread over the defaults: a day from an imported or older file may lack some fields.
+export const peekToday = () => ({ ...emptyDay(), ...state.data.days[todayStr()] });
 function today() {
   const t = todayStr();
-  return (state.data.days[t] ||= emptyDay());
+  return (state.data.days[t] = { ...emptyDay(), ...state.data.days[t] });
 }
 
 export function touchStreak() {
