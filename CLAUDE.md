@@ -43,7 +43,7 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 ## Classroom architecture
 
 **`classroom/api/`** – Azure Functions, .NET 10 isolated worker, `HttpRequestData` model (no ASP.NET Core integration), served by Static Web Apps under `/api`.
-- `Dictionary/`: C# port of the demo's CSV reader; the bundled `api/data/*.csv` is parsed once per process.
+- `Dictionary/`: C# port of the demo's CSV reader; the bundled `api/data/*.csv` is parsed once per process. A word may have no picture: its `Visual` is then empty (frontend: `hasPicture()` in `web/js/dict.js`) and the games must not rely on a picture for it.
 - `Auth/Roster.cs`: pupils from the `PUPILS_JSON` setting and `TEACHER_PASSWORD`. A password alone identifies its owner; passwords are compared by letters and digits only (no case, accents, spaces or hyphens). Every request after login carries it in `X-EnglishTutor-Password`; `RequestIdentity.AuthorizeAsync` returns 401/403.
 - `Progress/`: one Cosmos document per pupil, keyed by pupil id (`id`, `revision`, `updatedAt`, `summary`, `data`). `ProgressService.SaveAsync` rejects a save based on an old revision (409 with the newer copy) using ETags. `ProgressSummary` is computed on every save and feeds the teacher's class table. `CosmosProgressStore` uses Gateway mode and System.Text.Json; against the local emulator (Development only) it accepts the self-signed certificate and creates the database and container.
 - `Functions/`: `GET /api/dictionary`, `POST /api/login`, `GET`/`PUT /api/progress`, `GET /api/teacher/class`.
