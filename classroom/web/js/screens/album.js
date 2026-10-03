@@ -2,7 +2,7 @@
 
 import { el } from '../util.js';
 import { state } from '../state.js';
-import { dict, wordsOf, visual } from '../dict.js';
+import { dict, wordsOf, visualOrInitial, pictureIcon } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -25,9 +25,9 @@ export function render(app) {
           class: `sticker ${st}`, type: 'button',
           onclick: () => {
             if (st === 'locked') { toast('❔', 'Ezt a szót még nem ismered. Tanuld meg!'); return; }
-            sfx('pop'); speak(w.english); toast(w.visual.startsWith('color:') ? '🎨' : w.visual, `${w.english} = ${w.hu}`, { ms: 2200 });
+            sfx('pop'); speak(w.english); toast(pictureIcon(w), `${w.english} = ${w.hu}`, { ms: 2200 });
           },
-        }, st === 'locked' ? el('span', { class: 'emoji' }, '❔') : visual(w, 'st-visual'),
+        }, st === 'locked' ? el('span', { class: 'emoji' }, '❔') : visualOrInitial(w, 'st-visual'),
         el('span', { class: 'st-word' }, st === 'locked' ? '???' : w.english));
       })));
   });

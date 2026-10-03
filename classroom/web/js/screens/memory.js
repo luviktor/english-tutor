@@ -2,7 +2,7 @@
 
 import { el, shuffle, sleep } from '../util.js';
 import { wordRec } from '../state.js';
-import { wordsOf, visual } from '../dict.js';
+import { wordsOf, hasPicture, visual } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -35,8 +35,9 @@ export function render(app, { topic }) {
 
   function play() {
     const n = words.length;
+    // A word without a picture is paired with its Hungarian meaning instead.
     const cards = shuffle(words.flatMap(w => [
-      { word: w, type: 'pic', open: false, matched: false },
+      { word: w, type: hasPicture(w) ? 'pic' : 'hu', open: false, matched: false },
       { word: w, type: 'word', open: false, matched: false },
     ]));
     const misses = {};
@@ -45,13 +46,15 @@ export function render(app, { topic }) {
     let opened = [];
     let busy = false;
 
-    const c = coach('Fordíts fel két kártyát: egy képet és a hozzá tartozó szót!');
+    const c = coach(words.every(hasPicture)
+      ? 'Fordíts fel két kártyát: egy képet és a hozzá tartozó szót!'
+      : 'Fordíts fel két kártyát: egy angol szót és a hozzá tartozó képet vagy magyar szót!');
     const counter = el('div', { class: 'moves' }, '👣 Lépések: 0');
     const cols = n * 2 === 12 || n * 2 === 16 ? 4 : n * 2 <= 6 ? 3 : n * 2 === 8 ? 4 : 5;
     const els = cards.map(card => {
       const front = el('div', { class: 'mface mfront' },
-        card.type === 'pic'
-          ? visual(card.word, 'mc-visual')
+        card.type === 'pic' ? visual(card.word, 'mc-visual')
+          : card.type === 'hu' ? el('div', { class: 'mc-word' }, card.word.hu)
           : [el('div', { class: 'mc-word' }, card.word.english), el('div', { class: 'mc-hu' }, card.word.hu)]);
       const node = el('button', { class: 'mcard', type: 'button', 'aria-label': 'Kártya', onclick: () => flip(card) },
         el('div', { class: 'mcard-inner' }, el('div', { class: 'mface mback' }, '?'), front));

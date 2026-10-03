@@ -96,6 +96,12 @@ Edit `api/data/dictionary.csv` (format: [`demo/README.md`](../demo/README.md#the
 push to `master`; the deployment rebuilds the API. Progress is keyed by the lower-case English word,
 so changing a word's English spelling loses its progress.
 
+The `emoji` column may be left empty: such a word has no picture. It is shown as a tile with its first
+letter, and the games practise it with text only (hear it and pick the English word, or see the Hungarian
+word and pick the English one; in the pair game it is matched with its Hungarian meaning). The teacher's
+view shows one warning with the number of words without a picture. An `img:` picture that fails to load
+falls back to the same tile.
+
 ## Deployment
 
 `.github/workflows/azure-static-web-apps.yml` runs the tests, publishes the API and deploys

@@ -163,6 +163,9 @@ button.chip:hover { border-color: var(--primary); }
 .emoji { font-family: var(--emoji); line-height: 1; display: inline-block; }
 .swatch { display: inline-block; width: .85em; height: .85em; border-radius: 50%; border: .04em solid rgba(30, 33, 64, .18); vertical-align: middle; }
 .pic { height: 1em; width: auto; vertical-align: middle; }
+/* Stand-in for a word without a picture: a tile with the first letter (data-letter). */
+span.nopic { display: flex; align-items: center; justify-content: center; width: .85em; height: .85em; border-radius: .22em; vertical-align: middle; background: var(--primary-soft); border: .03em solid var(--line-strong); color: var(--primary-d); }
+.nopic::before { content: attr(data-letter); font-size: .55em; font-weight: 800; line-height: 1; }
 .prompt-visual, .learn-visual, .pv-visual { margin-inline: auto; }
 
 /* -------------------------------------------------------------- modal etc */
