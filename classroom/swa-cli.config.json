@@ -1,0 +1,12 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "englishtutor": {
+      "appLocation": "web",
+      "outputLocation": ".",
+      "apiDevserverUrl": "http://localhost:7071",
+      "run": "func start --script-root api",
+      "devserverTimeout": 120
+    }
+  }
+}

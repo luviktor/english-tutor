@@ -13,6 +13,14 @@
       "runtimeExecutable": "py",
       "runtimeArgs": ["-m", "http.server", "8766", "--directory", "demo/_site"],
       "port": 8766
+    },
+    {
+      "name": "classroom",
+      "runtimeExecutable": "swa",
+      "runtimeArgs": ["start", "classroom/web", "--swa-config-location", "classroom/web",
+        "--api-devserver-url", "http://localhost:7071", "--run", "func start --script-root classroom/api",
+        "--devserver-timeout", "120"],
+      "port": 4280
     }
   ]
 }
