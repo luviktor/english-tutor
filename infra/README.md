@@ -41,7 +41,31 @@ If the deployment fails with a free-tier error, another account in the subscript
 
 Check in the portal that the Cosmos DB account's **Overview** shows *Free Tier Discount: Opted In*.
 
-## 3. Connect GitHub
+## 3. The API's settings
+
+The API reads three environment variables (see [`classroom/README.md`](../classroom/README.md#login)). They are
+encrypted at rest and only the API can read them. **Never commit them: the repository is public.**
+
+The Cosmos DB connection string, straight from the account:
+
+```bash
+COSMOS_ACCOUNT=$(az deployment group show --resource-group rg-englishtutor --name main --query properties.outputs.cosmosAccountName.value --output tsv)
+COSMOS=$(az cosmosdb keys list --resource-group rg-englishtutor --name "$COSMOS_ACCOUNT" --type connection-strings --query "connectionStrings[0].connectionString" --output tsv)
+az staticwebapp appsettings set --name swa-englishtutor --resource-group rg-englishtutor --setting-names "COSMOS_CONNECTION_STRING=$COSMOS"
+```
+
+The passwords are best typed in the portal, so they don't end up in the shell history:
+**Static Web App → Settings → Environment variables → Production → + Add**:
+
+* `TEACHER_PASSWORD`: a long password (at least 8 letters or digits).
+* `PUPILS_JSON`: the whole list on one line, for example
+  `[{"id":"p01","name":"Anna","password":"piros-roka-7"},{"id":"p02","name":"Bence","password":"kek-bagoly-3"}]`.
+  Keep the list with the real passwords outside the repository.
+
+Select **Apply**. The API restarts with the new values; changing a pupil's password logs that pupil out on
+every device, while their progress (stored by `id`) stays. Problems in the list are written to the API's log.
+
+## 4. Connect GitHub
 
 The workflow `.github/workflows/azure-static-web-apps.yml` deploys with the Static Web App's deployment
 token. Store it as the repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`:
