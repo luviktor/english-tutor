@@ -35,6 +35,7 @@ export function go(name, params = {}, { replace = false, fromPop = false } = {})
 }
 
 addEventListener('popstate', e => {
+  if (!currentName) return; // still on the login screen: entries from before a logout
   const s = e.state;
   if (s && registry[s.name]) go(s.name, s.params || {}, { fromPop: true });
   else go('home', {}, { replace: true });

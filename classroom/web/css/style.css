@@ -190,6 +190,24 @@ button.chip:hover { border-color: var(--primary); }
 @keyframes floatUp { to { opacity: 0; transform: translate(-50%, -110px); } }
 canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 95; }
 
+/* ------------------------------------------------------------------ login */
+.screen-login { display: grid; place-items: center; min-height: calc(100vh - 40px); }
+.login-card { width: min(100%, 440px); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 34px 28px 28px; }
+.login-logo {
+  width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; font-weight: 800; font-size: 1.7rem; color: #fff;
+  background: linear-gradient(135deg, #6366f1, var(--primary-d)); box-shadow: 0 6px 18px -6px rgba(79, 70, 229, .6);
+}
+.login-card .lead { margin: 0 0 6px; }
+.login-row { display: flex; gap: 8px; width: 100%; align-items: center; }
+.login-row .btn { margin-bottom: 3px; white-space: nowrap; }
+.login-input { flex: 1; font-size: 1.2rem; padding: 12px 14px; }
+.login-submit { width: 100%; margin-top: 6px; }
+.login-busy { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: .92rem; text-align: left; }
+.login-busy[hidden] { display: none; }
+.login-busy .spinner { width: 22px; height: 22px; border-width: 3px; flex: none; }
+.chip-user { max-width: 11em; }
+.user-name { overflow: hidden; text-overflow: ellipsis; }
+
 /* ------------------------------------------------------------------- home */
 .hero { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 28px; align-items: center; }
 .hero-left { display: flex; flex-direction: column; align-items: center; gap: 14px; }
@@ -469,7 +487,10 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 @media (max-width: 560px) {
   :root { font-size: 16px; }
   .hud-title { display: none; }
-  .mini-bar { display: none; }
+  .mini-bar, .lv-text { display: none; }
+  .hud-chips { gap: 6px; }
+  .chip { padding: 5px 9px; }
+  .chip-user { max-width: 7.5em; }
   .slot { width: 40px; height: 52px; font-size: 1.6rem; }
   .opt-visual { font-size: 3.4rem; }
   .game-title { display: none; }

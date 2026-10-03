@@ -1,10 +1,11 @@
-// The strip at the top of every screen: home button, level, streak and stars.
+// The strip at the top of every screen: home button, level, streak, stars and the pupil (click: log out).
 
 import { el, $ } from './util.js';
 import { state, onChange, streakNow } from './state.js';
 import { levelInfo } from './levels.js';
 import { go, onScreen } from './router.js';
 import { APP_TITLE } from './strings.js';
+import { logout } from './account.js';
 
 let refs = null;
 let last = { stars: null, streak: null, level: null };
@@ -18,7 +19,7 @@ export function initHud() {
     lvFill: el('i'),
     streak: el('b'),
     stars: el('b'),
-    warn: el('span', { class: 'save-warn', title: 'Nem sikerült menteni. Van internet?', hidden: true }, '💾❗'),
+    warn: el('span', { class: 'save-warn', title: 'Nem sikerült menteni. Van internet? Újrapróbálom.', hidden: true }, '💾❗'),
   };
   const level = el('div', { class: 'chip chip-level' }, refs.lvEmoji, refs.lvText, el('div', { class: 'mini-bar' }, refs.lvFill));
   refs.levelChip = level;
@@ -27,7 +28,9 @@ export function initHud() {
   hud.replaceChildren(el('div', { class: 'hud-inner' },
     refs.home,
     el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'), el('span', { class: 'hud-title' }, APP_TITLE)),
-    el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip)));
+    el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip,
+      el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout },
+        el('span', { class: 'user-name' }, state.pupil.name), el('span', { 'aria-hidden': 'true' }, '⏏')))));
   onChange(update);
   onScreen(name => { refs.home.classList.toggle('hidden', name === 'home'); });
   update();

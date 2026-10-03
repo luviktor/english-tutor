@@ -1,6 +1,6 @@
 // One round of a game: picks the words, gives XP / stars, and summarises at the end.
 
-import { state, recordAnswer, addXP, addStars, checkDailyGoal, commit } from './state.js';
+import { state, recordAnswer, addXP, addStars, checkDailyGoal, commit, saveNow } from './state.js';
 import { wordsOf } from './dict.js';
 import { levelInfo } from './levels.js';
 import { grantBadges } from './badges.js';
@@ -80,6 +80,7 @@ export function startSession(game, topic) {
       });
       commit();
       const newBadges = grantBadges().map(b => b.id);
+      saveNow(); // don't wait for the save timer: the round is the unit of work
       return {
         game, topic, right: s.right, half: s.half, wrong: s.wrong, total, rating, perfect,
         xp: s.xp + bonus.xp, stars: s.stars + bonus.stars, bonus,

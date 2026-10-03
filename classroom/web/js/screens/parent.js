@@ -1,13 +1,15 @@
-// Parents' corner: progress overview, sound / voice settings, dictionary status, reset.
-// Protected by a small multiplication so that a 9-year-old does not wander in by accident.
+// Settings for parents and teachers: progress overview, sound / voice settings, dictionary status,
+// export / import of the progress, reset. Protected by a small multiplication so that a child does not
+// wander in by accident.
 
-import { el, dayStr } from '../util.js';
-import { state, commit, resetAll } from '../state.js';
+import { el, dayStr, todayStr } from '../util.js';
+import { state, commit, resetAll, replaceData } from '../state.js';
 import { dict, loadDictionary } from '../dict.js';
 import { go } from '../router.js';
 import { speak, englishVoices, hasEnglishVoice, bestVoice } from '../speech.js';
 import { confirmDialog } from '../ui.js';
 import { sfx } from '../sound.js';
+import { toast } from '../fx.js';
 
 export function render(app) {
   const root = el('div', { class: 'parent' });
@@ -71,7 +73,6 @@ export function render(app) {
     const rate = el('input', { type: 'range', min: 0.5, max: 1.1, step: 0.05, value: d.settings.rate, oninput: e => { d.settings.rate = Number(e.target.value); commit(); } });
     const goal = el('select', { onchange: e => { d.settings.dailyGoal = Number(e.target.value); commit(); } },
       [5, 10, 15, 20, 30, 40].map(n => el('option', { value: n, selected: d.settings.dailyGoal === n }, `${n} szó`)));
-    const nameInput = el('input', { type: 'text', value: d.player.name, maxlength: 20, onchange: e => { d.player.name = e.target.value.trim() || 'Játékos'; commit(); } });
     const voice = bestVoice();
 
     const dictBox = el('div', {});
@@ -107,7 +108,6 @@ export function render(app) {
           : el('p', {}, 'Még nincs elég adat.')),
       el('section', { class: 'card settings' },
         el('h3', {}, '🔧 Beállítások'),
-        field('Név', nameInput),
         field('Napi cél', goal),
         field('Hangeffektek', el('input', { type: 'checkbox', checked: d.settings.sound, onchange: e => { d.settings.sound = e.target.checked; commit(); sfx('pop'); } })),
         field('Angol hang', voiceSel),
@@ -118,6 +118,7 @@ export function render(app) {
             : '⚠️ Nem találtam angol beszédhangot. Telepíts angol (USA) nyelvi csomagot a Windows beállításaiban, és indítsd újra a böngészőt.',
           ' ', el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: () => speak('Hello! Welcome to your English adventure!') }, '🔊 Kipróbálom'))),
       el('section', { class: 'card' }, el('h3', {}, '📚 Szótár'), dictBox),
+      backupSection(),
       el('section', { class: 'card danger' },
         el('h3', {}, '🗑️ Eredmények törlése'),
         el('p', {}, 'Minden eredmény, kártya és csillag törlődik.'),
@@ -130,8 +131,45 @@ export function render(app) {
             }
           },
         }, 'Mindent törlök')),
-      el('p', { class: 'small center' }, 'Az eredmények ebben a böngészőben vannak elmentve.'));
+      el('p', { class: 'small center' }, 'Az eredmények a szerveren vannak elmentve, így bármelyik gépről folytathatod.'));
   }
+}
+
+/** Download the progress as a file, or replace it with one (e.g. the demo's data/progress.json). */
+function backupSection() {
+  const download = () => {
+    const blob = new Blob([JSON.stringify(state.data, null, 1)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    el('a', { href: url, download: `angol-kaland-${state.pupil.id}-${todayStr()}.json` }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const file = el('input', {
+    type: 'file', accept: '.json,application/json', hidden: true,
+    onchange: async e => {
+      const chosen = e.target.files[0];
+      e.target.value = '';
+      if (!chosen) return;
+      let saved = null;
+      try { saved = JSON.parse(await chosen.text()); } catch { /* reported below */ }
+      if (!saved || typeof saved !== 'object' || typeof saved.player !== 'object') {
+        toast('⚠️', 'Ez nem egy Angol kaland mentés.');
+        return;
+      }
+      const ok = await confirmDialog('A fájl tartalma felülírja a mostani eredményeket. Folytatod?', { icon: '📥', yes: 'Betöltöm', no: 'Mégse' });
+      if (!ok) return;
+      await replaceData(saved);
+      toast(state.saveError ? '💾' : '✅', state.saveError ? 'Betöltöttem, a mentést később újrapróbálom.' : 'Betöltöttem az eredményeket.');
+      go('home');
+    },
+  });
+  return el('section', { class: 'card' },
+    el('h3', {}, '💾 Mentés fájlba'),
+    el('p', {}, 'Az eredményeket letöltheted egy fájlba, vagy betölthetsz egy korábbi mentést – a régi, gépen futó változat ',
+      el('code', {}, 'data\\progress.json'), ' fájlját is.'),
+    el('div', { class: 'row-wrap' },
+      el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: download }, '📤 Letöltés'),
+      el('button', { class: 'btn btn-ghost btn-small', type: 'button', onclick: () => file.click() }, '📥 Betöltés fájlból'),
+      file));
 }
 
 const kpi = (icon, value, label) => el('div', { class: 'kpi' }, el('span', {}, icon), el('b', {}, value), el('small', {}, label));
