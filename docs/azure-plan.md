@@ -2,6 +2,19 @@
 
 The demo in `demo/` was accepted by the teachers. This plan moves the app to Azure so that a whole class can use it, free of charge.
 
+## Status (2026-10-03)
+
+Phases 0–3 are implemented and tested locally against the Cosmos DB emulator, each on its own branch,
+stacked on each other: `feature/azure-infra` → `feature/classroom-skeleton` → `feature/pupil-login` →
+`feature/teacher-view`. Nothing is deployed yet; the Azure steps are in [`infra/README.md`](../infra/README.md).
+
+Differences from the text below, decided during the implementation:
+- Passwords are compared by their letters and digits only, so `piros roka 7` also works for `piros-roka-7`.
+- Nóra's `demo/data/progress.json` is imported through the app: log in as her, then ⚙️ Beállítások → 💾 Mentés fájlba → 📥 Betöltés fájlból. No separate import tool.
+- The API uses Cosmos DB in Gateway mode (HTTPS only) and the plain `HttpRequestData` model.
+- The Cosmos account uses continuous 7-day backup (no storage charge) and keys that can't create or delete containers; pull-request previews are switched off in the Static Web App.
+- The workflow builds and tests the API itself and deploys the published output (`skip_api_build`).
+
 ## Requirements
 
 - About 25 pupils, each playing at most 30 minutes a day.
@@ -144,7 +157,7 @@ docs/azure-plan.md         this file
    ```bash
    docker run --detach --publish 8081:8081 --publish 8080:8080 --publish 1234:1234 mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest --protocol https
    ```
-2. Run `swa start` from `classroom/`. It also starts Core Tools. To debug the API in an IDE instead, start it there and point the SWA CLI at `http://localhost:7071`.
+2. Run `swa start englishtutor` from `classroom/`. SWA CLI 2.0.10 refuses to start Core Tools under Node.js 24, so `swa-cli.config.json` starts `func start` itself (`run`) and proxies `/api` to `http://localhost:7071`. To debug the API in an IDE instead, start it there and leave out `run`.
 3. Open `http://localhost:4280`. A `.claude/launch.json` entry will run the same thing.
 
 Alternative without the emulator: point `local.settings.json` at a separate dev container in the free Cosmos account. That needs internet and shares the 1000 RU/s.
@@ -197,6 +210,6 @@ Each phase gets its own `feature/<topic>` branch with small commits.
 
 ## Open questions
 
-1. What title should the children see instead of "Nóra angol kalandja"?
-2. Is `classroom/` a good folder name?
-3. Should the GitHub Pages demo stay online after the move?
+1. What title should the children see instead of "Nóra angol kalandja"? *For now **Angol kaland**; it's one constant, `APP_TITLE` in `classroom/web/js/strings.js` (plus the `<title>` in `index.html`).*
+2. Is `classroom/` a good folder name? *Kept.*
+3. Should the GitHub Pages demo stay online after the move? *Unchanged so far: it still deploys from `demo/`.*
