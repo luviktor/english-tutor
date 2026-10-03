@@ -1,8 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Pages only serves the demo, so it is redeployed only when demo/ or this workflow changes.
+
 on:
   push:
     branches: [master, main]
+    paths:
+      - 'demo/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
