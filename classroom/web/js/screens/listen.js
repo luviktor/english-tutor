@@ -2,7 +2,7 @@
 
 import { el, shuffle, pick, sleep } from '../util.js';
 import { wordRec } from '../state.js';
-import { distractors, visual } from '../dict.js';
+import { distractors, hasPicture, visual } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -41,20 +41,32 @@ export function render(app, { topic }) {
   function ask(word) {
     return new Promise(resolve => {
       const lvl = wordRec(word.key)?.lvl ?? 0;
-      const mode = pick(lvl <= 1 ? ['ear', 'ear', 'read'] : ['ear', 'read', 'pic']);
-      const options = shuffle([word, ...distractors(word, 3)]);
-      const c = coach({ ear: 'Hallgasd meg, és koppints a helyes képre!', read: 'Olvasd el, és keresd meg a képet!', pic: 'Mi ez angolul?' }[mode]);
+      // Picture questions need the word's own picture and a few other pictures to choose from;
+      // otherwise the word is asked with text only: hear/read it and pick the English word.
+      const pictures = hasPicture(word) ? distractors(word, 3, { pictured: true }) : [];
+      const picturesOk = pictures.length >= 2;
+      const mode = picturesOk
+        ? pick(lvl <= 1 ? ['ear', 'ear', 'read'] : ['ear', 'read', 'pic'])
+        : pick(lvl <= 1 ? ['hear', 'hear', 'hu'] : ['hear', 'hu']);
+      const textOptions = mode === 'pic' || mode === 'hear' || mode === 'hu';
+      const options = shuffle([word, ...(mode === 'ear' || mode === 'read' ? pictures : distractors(word, 3))]);
+      const c = coach({
+        ear: 'Hallgasd meg, és koppints a helyes képre!', read: 'Olvasd el, és keresd meg a képet!', pic: 'Mi ez angolul?',
+        hear: 'Hallgasd meg, és koppints a helyes szóra!', hu: 'Mi ez angolul?',
+      }[mode]);
       const feedback = el('div', { class: 'feedback' });
       let locked = false;
 
       const prompt = el('div', { class: 'prompt pop' });
-      if (mode === 'ear') {
+      if (mode === 'ear' || mode === 'hear') {
         prompt.append(el('div', { class: 'prompt-label' }, 'Mit hallasz?'),
           el('div', { class: 'prompt-tools' }, speakerBtn(word.english, { big: true }), speakerBtn(word.english, { slow: true, big: true })));
       } else if (mode === 'read') {
         prompt.append(el('div', { class: 'prompt-label' }, 'Melyik kép illik a szóhoz?'),
           el('div', { class: 'prompt-word' }, word.english),
           el('div', { class: 'prompt-tools' }, speakerBtn(word.english)));
+      } else if (mode === 'hu') {
+        prompt.append(el('div', { class: 'prompt-label' }, 'Mi ez angolul?'), el('div', { class: 'prompt-word' }, word.hu));
       } else {
         prompt.append(el('div', { class: 'prompt-label' }, 'Mi ez angolul?'), visual(word, 'prompt-visual'));
       }
@@ -63,14 +75,13 @@ export function render(app, { topic }) {
         const b = el('button', {
           class: 'option', type: 'button',
           onclick: () => choose(opt, b),
-        }, mode === 'pic' ? el('span', { class: 'opt-text' }, opt.english) : visual(opt, 'opt-visual'));
+        }, textOptions ? el('span', { class: 'opt-text' }, opt.english) : visual(opt, 'opt-visual'));
         return b;
       });
-      const grid = el('div', { class: `options ${mode === 'pic' ? 'options-text' : 'options-pics'}` }, buttons);
+      const grid = el('div', { class: `options ${textOptions ? 'options-text' : 'options-pics'}` }, buttons);
       stage.replaceChildren(prompt, grid, feedback, c.node);
 
-      if (mode === 'ear') setTimeout(() => { if (alive && !locked) speak(word.english); }, 450);
-      if (mode === 'read') setTimeout(() => { if (alive && !locked) speak(word.english); }, 450);
+      if (mode === 'ear' || mode === 'read' || mode === 'hear') setTimeout(() => { if (alive && !locked) speak(word.english); }, 450);
 
       async function choose(opt, btn) {
         if (locked) return;
