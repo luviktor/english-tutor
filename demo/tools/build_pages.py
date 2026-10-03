@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Build the static GitHub Pages site into ./_site.
+"""Build the static GitHub Pages site into demo/_site.
 
 Copies web/ and pre-renders the dictionary (the same parsing server.py does on every
 request) to dictionary.json, since static hosting has no /api. Progress is then kept
 in the browser's localStorage by web/js/api.js.
 
-Run:  py tools/build_pages.py
+Run:  py tools/build_pages.py       (from demo/)
+      py demo/tools/build_pages.py  (from the repository root)
 """
 from __future__ import annotations
 

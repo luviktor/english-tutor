@@ -41,12 +41,12 @@ Thumbs.db
 *.log
 logs/
 
-# Runtime data
-data/backups/
-data/progress.json
-data/*.json
-!data/dictionary.csv
-!data/topics.csv
+# Runtime data (demo app)
+demo/data/backups/
+demo/data/progress.json
+demo/data/*.json
+!demo/data/dictionary.csv
+!demo/data/topics.csv
 
 # Node (if used in future)
 node_modules/

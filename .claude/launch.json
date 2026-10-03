@@ -4,14 +4,14 @@
     {
       "name": "english-tutor",
       "runtimeExecutable": "py",
-      "runtimeArgs": ["server.py", "--no-browser"],
+      "runtimeArgs": ["demo/server.py", "--no-browser"],
       "port": 8765,
       "url": "http://127.0.0.1:8765"
     },
     {
       "name": "pages-preview",
       "runtimeExecutable": "py",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "_site"],
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "demo/_site"],
       "port": 8766
     }
   ]

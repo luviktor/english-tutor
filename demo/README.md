@@ -3,6 +3,8 @@
 A small English-learning game for a 9-year-old Hungarian child. Runs on your own machine at
 `http://127.0.0.1:8765/` – no internet, no installs beyond Python.
 
+All paths and commands in this file are relative to this `demo/` folder.
+
 ## Start it
 
 Double-click **`start.bat`** (or run `py server.py`). A black window opens and the browser opens
@@ -99,7 +101,7 @@ To start from zero: use the reset button in the parents' corner, or delete `data
 
 The game also runs as a static site, without `server.py`. `tools/build_pages.py` copies `web/` to `_site/`
 and pre-renders the dictionary to `dictionary.json`; a GitHub Actions workflow
-(`.github/workflows/pages.yml`) does this and deploys on every push to `master`/`main`.
+(`.github/workflows/pages.yml` in the repository root) does this and deploys on every push to `master`/`main`.
 
 * In this mode progress is stored in the **browser's localStorage** (per browser and device, not shared;
   clearing site data erases it). The local `server.py` version keeps using `data/progress.json`.
