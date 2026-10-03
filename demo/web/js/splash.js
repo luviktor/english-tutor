@@ -1,13 +1,14 @@
-// Splash screen: a short animation (the school, the title), then a box that asks for the access
-// code. runSplash() resolves once a valid code was entered. The look and the animation timeline
-// are CSS (section "splash" in style.css); this file builds the DOM, reveals the code box when
-// the animation has played (or on a tap / key press) and checks the code.
+// Splash screen: a short animation (the school drawn as a wireframe, the title), then a box that
+// asks for the access code. runSplash() resolves once a valid code was entered. The look and the
+// animation timeline are CSS (section "splash" in style.css); this file builds the DOM, reveals the
+// code box when the animation has played (or on a tap / key press) and checks the code.
 
 import { el } from './util.js';
 import { sfx } from './sound.js';
 import { confetti } from './fx.js';
 import { tryLogin } from './auth.js';
-import { rainbowSvg, schoolSvg } from './splash-art.js';
+import { rainbowSvg } from './splash-art.js';
+import { schoolWireframeSvg } from './school-wireframe.js';
 
 const READY_MS = 3700;   // the code box appears after the title has dropped in
 const LEAVE_MS = 700;    // fade-out of the whole splash
@@ -63,7 +64,9 @@ export function runSplash() {
         el('div', { class: 'sp-intro' },
           titleNode(),
           el('div', { class: 'sp-float' },
-            el('figure', { class: 'sp-picture intro', html: schoolSvg() }))),
+            el('figure', { class: 'sp-picture intro' },
+              el('div', { html: schoolWireframeSvg() }),
+              el('figcaption', { class: 'sp-caption', 'aria-hidden': 'true' }, 'Erkel Ferenc Általános Iskola')))),
         el('div', { class: 'sp-login' }, el('div', { class: 'sp-login-in' }, card))));
 
     // Everything behind the splash is out of reach (tab key, screen readers) until it is gone.
