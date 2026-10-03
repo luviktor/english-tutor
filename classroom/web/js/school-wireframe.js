@@ -76,6 +76,8 @@ function frame() {
   return group('wf-frame',
     // the foot of the building, and the plinth (two courses) along the whole front
     path(line([92, LEFT.y(92, 416.5)], [441, 416.5], [548, 416.5], [824, RIGHT.y(824, 416.5)])),
+    // ... which goes on far beyond the building, so that a drawing as wide as the window stands on a horizon
+    path(line([-1500, 411.6], [92, 411.6]) + line([824, 411.2], [2400, 411.4])),
     path(along(LEFT, 355.5, 92, 384) + along(LEFT, 369, 92, 384) + line([392, 355.5], [441.5, 355.5]) + line([392, 369], [441.5, 369])
       + line([548, 353], [600, 353]) + line([548, 370], [600, 370]) + along(RIGHT, 353, 600, 749) + along(RIGHT, 370, 600, 749)
       + line([780, 361], [824, 362.5])),
@@ -174,7 +176,8 @@ function flag() {
   return group('wf-flag', band(0, 'wf-red'), band(1, 'wf-white'), band(2, 'wf-green'));
 }
 
-/** The whole picture; scales with its container. */
+/** The whole picture; scales with its container. The ground line overflows the viewBox on purpose,
+ *  so the page should give the svg `overflow: visible`. */
 export function schoolWireframeSvg() {
   return `<svg class="wf" viewBox="80 46 760 380" role="img" aria-label="Az Erkel Ferenc Általános Iskola épülete, vonalrajzban">`
     + frame() + roofs() + tower() + windows() + flag() + `</svg>`;
