@@ -14,7 +14,7 @@ export function render(app) {
   app.append(
     el('div', { class: 'screen-head' },
       el('button', { class: 'btn btn-ghost btn-small', type: 'button', onclick: () => go('home') }, '◀ Vissza'),
-      el('h2', { class: 'screen-title' }, '⚙️ Szülőknek')),
+      el('h2', { class: 'screen-title' }, '⚙️ Beállítások')),
     root);
   gate();
 
@@ -30,8 +30,8 @@ export function render(app) {
     input.addEventListener('keydown', e => { if (e.key === 'Enter') tryIt(); });
     root.replaceChildren(el('div', { class: 'card gate' },
       el('div', { class: 'gate-icon' }, '🔐'),
-      el('h3', {}, 'Szülői zár'),
-      el('p', {}, `Ez a rész a felnőtteknek szól. Mennyi ${a} × ${b}?`),
+      el('h3', {}, 'Felnőtteknek'),
+      el('p', {}, `Ez a rész szülőknek és tanároknak szól. Mennyi ${a} × ${b}?`),
       input, el('button', { class: 'btn btn-blue', type: 'button', onclick: tryIt }, 'Belépés'), msg));
     input.focus();
   }
@@ -71,14 +71,13 @@ export function render(app) {
     const rate = el('input', { type: 'range', min: 0.5, max: 1.1, step: 0.05, value: d.settings.rate, oninput: e => { d.settings.rate = Number(e.target.value); commit(); } });
     const goal = el('select', { onchange: e => { d.settings.dailyGoal = Number(e.target.value); commit(); } },
       [5, 10, 15, 20, 30, 40].map(n => el('option', { value: n, selected: d.settings.dailyGoal === n }, `${n} szó`)));
-    const nameInput = el('input', { type: 'text', value: d.player.name, maxlength: 20, onchange: e => { d.player.name = e.target.value.trim() || 'Nóra'; commit(); } });
+    const nameInput = el('input', { type: 'text', value: d.player.name, maxlength: 20, onchange: e => { d.player.name = e.target.value.trim() || 'Játékos'; commit(); } });
     const voice = bestVoice();
 
     const dictBox = el('div', {});
     const drawDict = () => {
       dictBox.replaceChildren(
-        el('p', {}, `${dict.words.length} szó, ${dict.topics.length} téma. Szerkeszd a `, el('code', {}, 'data\\dictionary.csv'),
-          ' fájlt (Excelben vagy Jegyzettömbben), mentsd el, majd töltsd újra a szótárat.'),
+        el('p', {}, `${dict.words.length} szó, ${dict.topics.length} téma. A szótárat a tanár frissíti.`),
         el('div', { class: 'row-wrap' }, dict.topics.map(t => el('span', { class: 'chip-topic', style: { '--c': t.color } }, `${t.emoji} ${t.name} (${dict.words.filter(w => w.topic === t.name).length})`))),
         dict.warnings.length > 0 && el('div', { class: 'warn-box' }, el('b', {}, 'Figyelmeztetések:'), el('ul', {}, dict.warnings.map(w => el('li', {}, w)))),
         el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: async () => { await loadDictionary(); drawDict(); sfx('pop'); } }, '🔄 Szótár újratöltése'));
@@ -94,7 +93,7 @@ export function render(app) {
           kpi('💬', d.stats.answers, 'válasz'),
           kpi('🎯', acc + '%', 'pontosság'),
           kpi('🌱', `${known}/${words.length}`, 'szót tud'),
-          kpi('🥇', `${gold}/${words.length}`, 'arany matrica'),
+          kpi('🥇', `${gold}/${words.length}`, 'arany kártya'),
           kpi('🎮', d.stats.rounds, 'befejezett kör')),
         el('h4', {}, 'Az utolsó 14 nap (válaszok száma)'),
         el('div', { class: 'day-chart' }, bars)),
@@ -117,11 +116,11 @@ export function render(app) {
           hasEnglishVoice()
             ? `✅ Angol hang: ${voice?.name}`
             : '⚠️ Nem találtam angol beszédhangot. Telepíts angol (USA) nyelvi csomagot a Windows beállításaiban, és indítsd újra a böngészőt.',
-          ' ', el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: () => speak('Hello! Welcome to English adventure!') }, '🔊 Kipróbálom'))),
+          ' ', el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: () => speak('Hello! Welcome to your English adventure!') }, '🔊 Kipróbálom'))),
       el('section', { class: 'card' }, el('h3', {}, '📚 Szótár'), dictBox),
       el('section', { class: 'card danger' },
         el('h3', {}, '🗑️ Eredmények törlése'),
-        el('p', {}, 'Minden eredmény, matrica és csillag törlődik. (A korábbi napi mentések a data\\backups mappában megmaradnak.)'),
+        el('p', {}, 'Minden eredmény, kártya és csillag törlődik.'),
         el('button', {
           class: 'btn btn-red btn-small', type: 'button',
           onclick: async () => {
@@ -131,7 +130,7 @@ export function render(app) {
             }
           },
         }, 'Mindent törlök')),
-      el('p', { class: 'small center' }, 'Az eredmények ezen a gépen, ebben a böngészőben vannak elmentve.'));
+      el('p', { class: 'small center' }, 'Az eredmények ebben a böngészőben vannak elmentve.'));
   }
 }
 

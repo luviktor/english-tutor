@@ -7,10 +7,10 @@ import { go } from '../router.js';
 import { sfx } from '../sound.js';
 
 const MODES = {
-  learn: { title: '📖 Mit szeretnél tanulni?', mix: false },
-  listen: { title: '🎧 Melyik témával játszol?', mix: true },
-  memory: { title: '🃏 Melyik témával játszol?', mix: true },
-  typing: { title: '⌨️ Melyik témával játszol?', mix: true },
+  learn: { title: '📖 Szókártyák – válassz témát', mix: false },
+  listen: { title: '🎧 Hallás után – válassz témát', mix: true },
+  memory: { title: '🃏 Párkereső – válassz témát', mix: true },
+  typing: { title: '⌨️ Gépelés – válassz témát', mix: true },
 };
 
 function progress(words) {
@@ -26,7 +26,7 @@ function card({ emoji, name, color, words, onClick }) {
     el('span', { class: 'topic-emoji' }, emoji),
     el('span', { class: 'topic-name' }, name),
     el('span', { class: 'topic-bar' }, el('i', { style: { width: Math.round(pr.pct * 100) + '%' } })),
-    el('span', { class: 'topic-count' }, `${pr.known}/${words.length} szó megy`));
+    el('span', { class: 'topic-count' }, `${pr.known}/${words.length} szót tudsz`));
 }
 
 export function render(app, { mode = 'listen' } = {}) {

@@ -54,7 +54,7 @@ export function render(app, { topic }) {
           ? visual(card.word, 'mc-visual')
           : [el('div', { class: 'mc-word' }, card.word.english), el('div', { class: 'mc-hu' }, card.word.hu)]);
       const node = el('button', { class: 'mcard', type: 'button', 'aria-label': 'Kártya', onclick: () => flip(card) },
-        el('div', { class: 'mcard-inner' }, el('div', { class: 'mface mback' }, '❓'), front));
+        el('div', { class: 'mcard-inner' }, el('div', { class: 'mface mback' }, '?'), front));
       card.node = node;
       return node;
     });

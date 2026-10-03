@@ -1,4 +1,4 @@
-// Sticker album: every word is a sticker that gets more colourful as Nóra learns it.
+// Word-card collection: every word is a card that gets more colourful as the pupil learns it, up to gold.
 
 import { el } from '../util.js';
 import { state } from '../state.js';
@@ -35,12 +35,12 @@ export function render(app) {
   app.append(
     el('div', { class: 'screen-head' },
       el('button', { class: 'btn btn-ghost btn-small', type: 'button', onclick: () => go('home') }, '◀ Vissza'),
-      el('h2', { class: 'screen-title' }, '🗂️ Matricagyűjtemény')),
-    el('p', { class: 'lead' }, `Arany matricád: ${gold} / ${dict.words.length}. Gyakorolj egy szót többször, és aranyra vált!`),
+      el('h2', { class: 'screen-title' }, '🗂️ Gyűjtemény')),
+    el('p', { class: 'lead' }, `Arany kártyák: ${gold} / ${dict.words.length}. Ha egy szót több napon is jól tudsz, a kártyája aranyra vált.`),
     el('div', { class: 'legend' },
       el('span', { class: 'sticker locked mini' }, '❔ új'),
       el('span', { class: 'sticker learning mini' }, '🌱 tanulom'),
       el('span', { class: 'sticker good mini' }, '👍 tudom'),
-      el('span', { class: 'sticker gold mini' }, '🥇 mester')),
+      el('span', { class: 'sticker gold mini' }, '🥇 arany')),
     ...sections);
 }

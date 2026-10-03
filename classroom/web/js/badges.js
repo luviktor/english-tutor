@@ -1,6 +1,6 @@
 // Trophies. To add a new one, add a line to BADGES: test(c) decides when it is earned.
 //   c.s      = the progress object        c.known   = words at level 3+
-//   c.mastered = words at level 5 (gold)  c.total   = number of words in the dictionary
+//   c.mastered = words at level 5 (gold card)  c.total   = number of words in the dictionary
 //   c.level  = player level               c.topicMaster = a whole topic known at level 4+
 
 import { state, commit } from './state.js';
@@ -21,16 +21,16 @@ export const BADGES = [
   { id: 'known10', emoji: '🌱', name: '10 szót tudok', desc: 'Tanulj meg 10 szót.', test: c => c.known >= 10 },
   { id: 'known25', emoji: '🌿', name: '25 szót tudok', desc: 'Tanulj meg 25 szót.', test: c => c.known >= 25 },
   { id: 'known50', emoji: '🌳', name: '50 szót tudok', desc: 'Tanulj meg 50 szót.', test: c => c.known >= 50 },
-  { id: 'master1', emoji: '🥇', name: 'Első arany matrica', desc: 'Szerezd meg az első arany matricát.', test: c => c.mastered >= 1 },
-  { id: 'master10', emoji: '🏆', name: 'Matricagyűjtő', desc: '10 arany matrica.', test: c => c.mastered >= 10 },
+  { id: 'master1', emoji: '🥇', name: 'Első arany kártya', desc: 'Szerezd meg az első arany kártyát.', test: c => c.mastered >= 1 },
+  { id: 'master10', emoji: '🏆', name: 'Kártyagyűjtő', desc: '10 arany kártya.', test: c => c.mastered >= 10 },
   { id: 'topic', emoji: '🎓', name: 'Témamester', desc: 'Ismerj meg egy téma minden szavát.', test: c => c.topicMaster },
   { id: 'typist', emoji: '⌨️', name: 'Gyorsgépelő', desc: '25 szót írj be hibátlanul.', test: c => c.s.stats.typedOk >= 25 },
   { id: 'typist100', emoji: '🖥️', name: 'Gépíró bajnok', desc: '100 szót írj be hibátlanul.', test: c => c.s.stats.typedOk >= 100 },
   { id: 'listener', emoji: '👂', name: 'Éles fül', desc: '30 jó válasz a hallgatós játékban.', test: c => c.s.stats.listenOk >= 30 },
   { id: 'memory', emoji: '🐘', name: 'Elefánt-memória', desc: 'Nyerj a Párkeresőben nagyon kevés lépésből.', test: c => c.s.stats.memoryPerfect >= 1 },
-  { id: 'level5', emoji: '🦊', name: '5. szint', desc: 'Érj el az 5. szintre.', test: c => c.level >= 5 },
+  { id: 'level5', emoji: '🔭', name: '5. szint', desc: 'Érj el az 5. szintre.', test: c => c.level >= 5 },
   { id: 'level10', emoji: '🧙', name: '10. szint', desc: 'Érj el a 10. szintre.', test: c => c.level >= 10 },
-  { id: 'shopper', emoji: '👒', name: 'Divatos', desc: 'Vegyél valamit az öltözőben.', test: c => c.s.shop.owned.length >= 1 },
+  { id: 'shopper', emoji: '🎭', name: 'Stílusos', desc: 'Vásárolj valamit az Avatar boltban.', test: c => c.s.shop.owned.length >= 1 },
 ];
 
 function context() {

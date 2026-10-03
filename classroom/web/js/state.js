@@ -1,4 +1,4 @@
-// Everything Nóra has achieved. One JSON object, saved via api.js (server.py -> data/progress.json, or localStorage on static hosting).
+// Everything a pupil has achieved. One JSON object, saved via api.js.
 //
 // words[key] = { lvl 0..5, ok, bad, last, upDay, upCount }   (key = lower-case English word)
 //   lvl: 0 = just met, 1-2 = learning, 3-4 = knows it, 5 = mastered (gold sticker)
@@ -16,7 +16,7 @@ const notify = () => listeners.forEach(fn => fn());
 
 const defaults = () => ({
   version: 1,
-  player: { name: 'Nóra', xp: 0, stars: 0, starsTotal: 0, mascot: '🦊', hat: null, face: null, createdAt: new Date().toISOString() },
+  player: { name: 'Játékos', xp: 0, stars: 0, starsTotal: 0, mascot: '🦊', hat: null, face: null, createdAt: new Date().toISOString() },
   settings: { sound: true, voice: '', rate: 0.85, dailyGoal: 15 },
   words: {},
   days: {},

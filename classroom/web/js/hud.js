@@ -4,6 +4,7 @@ import { el, $ } from './util.js';
 import { state, onChange, streakNow } from './state.js';
 import { levelInfo } from './levels.js';
 import { go, onScreen } from './router.js';
+import { APP_TITLE } from './strings.js';
 
 let refs = null;
 let last = { stars: null, streak: null, level: null };
@@ -17,16 +18,16 @@ export function initHud() {
     lvFill: el('i'),
     streak: el('b'),
     stars: el('b'),
-    warn: el('span', { class: 'save-warn', title: 'Nem sikerült menteni! Fut még a program?', hidden: true }, '💾❗'),
+    warn: el('span', { class: 'save-warn', title: 'Nem sikerült menteni. Van internet?', hidden: true }, '💾❗'),
   };
   const level = el('div', { class: 'chip chip-level' }, refs.lvEmoji, refs.lvText, el('div', { class: 'mini-bar' }, refs.lvFill));
   refs.levelChip = level;
   refs.streakChip = el('div', { class: 'chip chip-streak', title: 'Napok egymás után' }, '🔥 ', refs.streak);
   refs.starChip = el('div', { class: 'chip chip-stars', title: 'Csillagok' }, '⭐ ', refs.stars);
-  hud.replaceChildren(
+  hud.replaceChildren(el('div', { class: 'hud-inner' },
     refs.home,
-    el('div', { class: 'hud-title' }, 'Nóra angol kalandja'),
-    el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip));
+    el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'), el('span', { class: 'hud-title' }, APP_TITLE)),
+    el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip)));
   onChange(update);
   onScreen(name => { refs.home.classList.toggle('hidden', name === 'home'); });
   update();

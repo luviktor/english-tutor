@@ -10,10 +10,10 @@ import { sfx } from '../sound.js';
 import { speak } from '../speech.js';
 
 const TILES = [
-  { icon: '📖', title: 'Tanulj!', sub: 'Nézd és hallgasd a szavakat', c1: '#ffb347', c2: '#ff6f61', mode: 'learn' },
-  { icon: '🎧', title: 'Hallgasd és válassz!', sub: 'Melyik képet hallod?', c1: '#5ee7df', c2: '#2d9cff', mode: 'listen' },
-  { icon: '🃏', title: 'Párkereső', sub: 'Találd meg a párokat!', c1: '#d68bff', c2: '#ff6ec7', mode: 'memory' },
-  { icon: '⌨️', title: 'Írd be!', sub: 'Gépeld be angolul!', c1: '#8af08a', c2: '#1fc16b', mode: 'typing' },
+  { icon: '📖', title: 'Szókártyák', sub: 'Nézd meg, hallgasd meg, mondd ki', c1: '#818cf8', c2: '#4f46e5', mode: 'learn' },
+  { icon: '🎧', title: 'Hallás után', sub: 'Melyik szót hallod?', c1: '#38bdf8', c2: '#0284c7', mode: 'listen' },
+  { icon: '🃏', title: 'Párkereső', sub: 'Kép és szó párban', c1: '#f472b6', c2: '#db2777', mode: 'memory' },
+  { icon: '⌨️', title: 'Gépelés', sub: 'Írd be a szót angolul', c1: '#4ade80', c2: '#16a34a', mode: 'typing' },
 ];
 
 function ring(done, goal) {
@@ -29,6 +29,9 @@ function ring(done, goal) {
   return wrap;
 }
 
+const pill = (cls, icon, label, value, screen) => el('button', { class: `pill ${cls}`, type: 'button', onclick: () => go(screen) },
+  el('span', { class: 'pill-icon' }, icon), el('span', {}, label, value != null && el('b', {}, value)));
+
 export function render(app) {
   const d = state.data;
   const p = d.player;
@@ -40,7 +43,7 @@ export function render(app) {
   const earned = BADGES.filter(b => d.badges[b.id]).length;
 
   const buddy = el('button', {
-    class: 'hero-mascot', type: 'button', 'aria-label': 'Köszönj a rókának',
+    class: 'hero-mascot', type: 'button', 'aria-label': 'Köszönj az avatarodnak',
     onclick: e => {
       sfx('pop');
       speak('Hello!');
@@ -64,20 +67,24 @@ export function render(app) {
         el('div', { class: 'goal-row' },
           ring(today.done, goal),
           el('div', { class: 'goal-text' },
-            el('div', { class: 'goal-title' }, today.goalDone ? 'Mai cél: kész! ✔' : 'Mai cél'),
+            el('div', { class: 'goal-title' }, today.goalDone ? 'Mai cél: kész ✔' : 'Mai cél'),
             el('div', {}, `${Math.min(today.done, goal)} / ${goal} szó`)),
           el('div', { class: 'streak-box' }, el('span', { class: 'streak-fire' }, '🔥'),
             el('div', {}, el('b', {}, streak), ' nap'), el('div', { class: 'small' }, 'sorozat'))))),
 
+    el('h2', { class: 'section-title' }, 'Játékok'),
     el('section', { class: 'tiles' }, TILES.map(t => el('button', {
       class: 'tile', type: 'button',
       style: { '--c1': t.c1, '--c2': t.c2 },
       onclick: () => { sfx('click'); go('topics', { mode: t.mode }); },
-    }, el('span', { class: 'tile-icon' }, t.icon), el('span', { class: 'tile-title' }, t.title), el('span', { class: 'tile-sub' }, t.sub)))),
+    }, el('span', { class: 'tile-icon' }, t.icon),
+    el('span', { class: 'tile-text' }, el('span', { class: 'tile-title' }, t.title), el('span', { class: 'tile-sub' }, t.sub)),
+    el('span', { class: 'tile-arrow', 'aria-hidden': 'true' }, '›')))),
 
+    el('h2', { class: 'section-title' }, 'Eredmények'),
     el('nav', { class: 'pills' },
-      el('button', { class: 'pill pill-gold', type: 'button', onclick: () => go('album') }, '🗂️ Matricák ', el('b', {}, `${gold}/${dict.words.length}`)),
-      el('button', { class: 'pill pill-pink', type: 'button', onclick: () => go('trophies') }, '🏆 Trófeák ', el('b', {}, `${earned}/${BADGES.length}`)),
-      el('button', { class: 'pill pill-blue', type: 'button', onclick: () => go('shop') }, '👒 Öltöző'),
-      el('button', { class: 'pill pill-grey', type: 'button', onclick: () => go('parent') }, '⚙️ Szülőknek')));
+      pill('pill-gold', '🗂️', 'Gyűjtemény', `${gold}/${dict.words.length} arany`, 'album'),
+      pill('pill-pink', '🏆', 'Trófeák', `${earned}/${BADGES.length}`, 'trophies'),
+      pill('pill-blue', p.mascot, 'Avatar', `⭐ ${p.stars}`, 'shop'),
+      pill('pill-grey', '⚙️', 'Beállítások', null, 'parent')));
 }

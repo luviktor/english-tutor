@@ -7,7 +7,7 @@ import { speak } from './speech.js';
 import { sfx } from './sound.js';
 import { coach } from './ui.js';
 
-/** Fills `stage` and resolves when Nóra presses "Kezdjük!". */
+/** Fills `stage` and resolves when the pupil presses "Kezdjük!". */
 export function showPreview(stage, words) {
   return new Promise(resolve => {
     words.forEach(w => introduce(w.key));

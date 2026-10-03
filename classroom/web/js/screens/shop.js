@@ -1,4 +1,4 @@
-// Wardrobe: spend stars on a new buddy, hats and glasses.
+// Avatar shop: spend stars on a new figure, hats and glasses.
 
 import { el } from '../util.js';
 import { state, spendStars, commit } from '../state.js';
@@ -10,9 +10,9 @@ import { confetti, toast } from '../fx.js';
 import { grantBadges } from '../badges.js';
 
 const SECTIONS = [
-  { slot: 'skin', title: '🐾 Új barát', items: SKINS, field: 'mascot' },
-  { slot: 'hat', title: '🎩 Kalapok', items: HATS, field: 'hat' },
-  { slot: 'face', title: '😎 Szemüvegek', items: FACES, field: 'face' },
+  { slot: 'skin', title: 'Figurák', items: SKINS, field: 'mascot' },
+  { slot: 'hat', title: 'Fejfedők', items: HATS, field: 'hat' },
+  { slot: 'face', title: 'Szemüvegek', items: FACES, field: 'face' },
 ];
 
 export function render(app) {
@@ -20,7 +20,7 @@ export function render(app) {
   app.append(
     el('div', { class: 'screen-head' },
       el('button', { class: 'btn btn-ghost btn-small', type: 'button', onclick: () => go('home') }, '◀ Vissza'),
-      el('h2', { class: 'screen-title' }, '👒 Öltöző')),
+      el('h2', { class: 'screen-title' }, '🎭 Avatar')),
     root);
 
   const owned = (slot, item) => item.cost === 0 || state.data.shop.owned.includes(`${slot}:${item.id}`);
@@ -52,7 +52,7 @@ export function render(app) {
     root.replaceChildren(
       el('div', { class: 'shop-top card' },
         mascot({ size: 'xl' }),
-        el('div', {}, el('div', { class: 'shop-stars' }, `⭐ ${p.stars}`), el('p', {}, 'Itt költheted el a csillagaidat. Koppints egy dologra!'))),
+        el('div', {}, el('div', { class: 'shop-stars' }, `⭐ ${p.stars}`), el('p', {}, 'Csillagokért új figurát és kiegészítőket vehetsz. Válassz egyet!'))),
       ...SECTIONS.map(sec => el('section', {},
         el('h3', { class: 'shop-h' }, sec.title),
         el('div', { class: 'shop-grid' }, sec.items.map(item => {
@@ -62,7 +62,7 @@ export function render(app) {
             class: `shop-item${on ? ' on' : ''}${have ? '' : ' locked'}${!have && p.stars < item.cost ? ' poor' : ''}`,
             type: 'button', onclick: () => pickItem(sec, item),
           }, el('span', { class: 'shop-emoji' }, item.id), el('span', { class: 'shop-name' }, item.name),
-          el('span', { class: 'shop-price' }, on ? '✔ rajtad van' : have ? 'Felveszem' : `⭐ ${item.cost}`));
+          el('span', { class: 'shop-price' }, on ? '✔ használod' : have ? 'Választom' : `⭐ ${item.cost}`));
         })))));
   }
 

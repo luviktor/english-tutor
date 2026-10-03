@@ -56,19 +56,19 @@ export function render(app, { topic }) {
   function finish() {
     sfx('win');
     confetti({ count: 120 });
-    const c = coach(`Ügyes vagy, ${state.data.player.name}! Most próbáld ki a szavakat egy játékban!`);
+    const c = coach(`Szép munka, ${state.data.player.name}! Most gyakorold a szavakat egy játékban.`);
     const play = (icon, label, screen, cls) => el('button', {
       class: `btn btn-big ${cls}`, type: 'button', onclick: () => go(screen, { topic }, { replace: false }),
     }, `${icon} ${label}`);
     stage.replaceChildren(
       el('div', { class: 'learn-card done pop' },
         el('div', { class: 'learn-done-emoji' }, '🎉'),
-        el('div', { class: 'learn-en' }, 'Végigértél!'),
+        el('div', { class: 'learn-en' }, 'Kész!'),
         el('div', { class: 'learn-hu' }, newCount ? `${newCount} új szót ismertél meg.` : 'Mehet a játék!')),
       el('div', { class: 'learn-play' },
-        play('🎧', 'Hallgasd és válassz!', 'listen', 'btn-blue'),
+        play('🎧', 'Hallás után', 'listen', 'btn-blue'),
         play('🃏', 'Párkereső', 'memory', 'btn-pink'),
-        play('⌨️', 'Írd be!', 'typing', 'btn-green')),
+        play('⌨️', 'Gépelés', 'typing', 'btn-green')),
       c.node);
   }
 

@@ -1,18 +1,18 @@
 // Player levels. XP needed to reach level n: 30 * n * (n - 1)  ->  0, 60, 180, 360, 600, 900, ...
 
 export const LEVELS = [
-  { emoji: '🥚', title: 'Szó-tojás' },
-  { emoji: '🐣', title: 'Kis csibe' },
-  { emoji: '🐥', title: 'Szófaló csibe' },
-  { emoji: '🐰', title: 'Ugri nyuszi' },
-  { emoji: '🦊', title: 'Ravasz róka' },
-  { emoji: '🦉', title: 'Bölcs bagoly' },
-  { emoji: '🐬', title: 'Szó-delfin' },
-  { emoji: '🦄', title: 'Egyszarvú' },
-  { emoji: '🐉', title: 'Szó-sárkány' },
-  { emoji: '🧙', title: 'Szó-varázsló' },
-  { emoji: '👑', title: 'Angol királynő' },
-  { emoji: '🚀', title: 'Szuperhős' },
+  { emoji: '🌱', title: 'Kezdő' },
+  { emoji: '🧭', title: 'Felfedező' },
+  { emoji: '🎒', title: 'Utazó' },
+  { emoji: '🗺️', title: 'Kalandor' },
+  { emoji: '🔭', title: 'Kutató' },
+  { emoji: '🛡️', title: 'Lovag' },
+  { emoji: '⚔️', title: 'Hős' },
+  { emoji: '🦉', title: 'Bölcs' },
+  { emoji: '🐉', title: 'Sárkányidomár' },
+  { emoji: '🧙', title: 'Varázsló' },
+  { emoji: '👑', title: 'Bajnok' },
+  { emoji: '🚀', title: 'Legenda' },
 ];
 
 export const levelStart = n => 30 * n * (n - 1);
