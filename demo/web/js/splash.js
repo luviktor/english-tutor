@@ -60,13 +60,12 @@ export function runSplash() {
         el('div', { html: rainbowSvg() }),
         [0, 1, 2, 3].map(i => el('i', { class: 'sp-cloud', style: { '--i': i } })),
         SPARKLES.map(([emoji, x, y], i) => el('span', { class: 'sp-spark', style: { left: x + '%', top: y + '%', '--i': i } }, emoji))),
+      // the school, as wide as the window and drawn over the sky; the title and the code box lie on top of it
+      el('div', { class: 'sp-wire', html: schoolWireframeSvg() }),
       el('div', { class: 'sp-stage' },
         el('div', { class: 'sp-intro' },
           titleNode(),
-          el('div', { class: 'sp-float' },
-            el('figure', { class: 'sp-picture intro' },
-              el('div', { html: schoolWireframeSvg() }),
-              el('figcaption', { class: 'sp-caption', 'aria-hidden': 'true' }, 'Erkel Ferenc Általános Iskola')))),
+          el('p', { class: 'sp-caption', 'aria-hidden': 'true' }, 'Erkel Ferenc Általános Iskola')),
         el('div', { class: 'sp-login' }, el('div', { class: 'sp-login-in' }, card))));
 
     // Everything behind the splash is out of reach (tab key, screen readers) until it is gone.

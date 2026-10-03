@@ -423,9 +423,9 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 
 /* ----------------------------------------------------------------- splash */
 /* Shown until a valid access code was entered (js/splash.js, art in js/splash-art.js and
-   js/school-wireframe.js). Timeline: rainbow 0-1.6s, picture pops in at .2s, the building is drawn
-   from .45s to ~2.4s and its windows light up until ~3.5s, title letters drop from 1s to ~3s, the
-   code box opens at 3.7s (class .is-ready). A tap skips ahead (.is-skipped). */
+   js/school-wireframe.js). Timeline: rainbow 0-1.6s, the building is drawn from .45s to ~2.4s and its
+   windows light up until ~3.5s, title letters drop from 1s to ~3s, the code box opens at 3.7s (class
+   .is-ready). A tap skips ahead (.is-skipped). */
 .splash {
   position: fixed; inset: 0; z-index: 70; display: flex; overflow: auto; padding: 18px 16px;
   background: linear-gradient(160deg, #8fe3ff 0%, #c9b8ff 55%, #ffc9e6 100%);
@@ -468,38 +468,26 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   animation: spJig 2.6s calc(3.1s + var(--i) * 110ms) ease-in-out infinite;
 }
 
-/* the picture of the school: a tilted, floating blueprint. The building (js/school-wireframe.js) is
-   drawn line by line, then its windows light up. The drawing's own groups time the animation. */
-.sp-float { animation: spFloat 5s ease-in-out infinite; }
-.sp-picture {
-  margin: 0; width: min(86vw, 440px, 69vh); rotate: -2deg; overflow: hidden; padding: 12px 12px 10px;
-  background:
-    linear-gradient(rgba(125, 211, 252, .1) 1px, transparent 1px) 0 0 / 20px 20px,
-    linear-gradient(90deg, rgba(125, 211, 252, .1) 1px, transparent 1px) 0 0 / 20px 20px,
-    linear-gradient(160deg, #3a2f8f, #1d1752);
-  border: 6px solid #fff; border-radius: 30px;
-  box-shadow: var(--lift), 0 18px 40px rgba(43, 35, 80, .2);
-  animation: spPop .9s .2s cubic-bezier(.3, 1.5, .5, 1) both;
-}
+/* the school: black lines as wide as the window, drawn over the rainbow and the clouds (js/school-wireframe.js);
+   the title and the code box lie on top of it and hide parts of it. It is drawn line by line, then its
+   windows light up. The drawing's own groups time the animation. */
+.sp-wire { position: fixed; inset: 0; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; }
+.sp-wire .wf { flex: none; width: min(100vw, 200vh); height: auto; }
 .sp-caption {
-  margin-top: 6px; text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
-  color: #8fe3ff; opacity: .9; animation: spFade .8s 2.3s ease-out both;
+  margin: 0; text-align: center; font-size: .78rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink); animation: spFade .8s 2.3s ease-out both;
 }
-.wf {
-  display: block; width: 100%; height: auto; overflow: visible; fill: none;
-  stroke: #c4f2ff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;
-  filter: drop-shadow(0 0 2.5px rgba(103, 220, 255, .7));
-}
+.wf { display: block; overflow: visible; fill: none; stroke: #111; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
 .wf path { stroke-dasharray: 1; animation: wfDraw 1.2s ease-out both; }
 .wf-frame path { animation-delay: .45s; }
 .wf-roofs > path { animation-delay: .85s; }
 .wf-tower > path { animation-delay: 1.15s; }
-.wf-fine path { stroke-width: 1.4; opacity: .55; animation-delay: 1.9s; }
-.wf-flag path { animation-delay: 2.5s; }
-.wf-red { stroke: #ff6b6b; }
-.wf-white { stroke: #fff; }
-.wf-green { stroke: #4ade80; }
+.wf-fine path { stroke-width: .7; opacity: .6; animation-delay: 1.9s; }
+.wf-red { fill: #ff4d5a; }
+.wf-white { fill: #fff; }
+.wf-green { fill: #2ed573; }
 .wf-flag { transform-box: fill-box; transform-origin: 0 50%; animation: spWave 1.6s ease-in-out infinite; }
+.wf-flag path { animation: wfDraw 1.2s 2.5s ease-out both, wfFill .6s 2.5s ease-out both; }
 /* windows: drawn in a scattered order (eleven delays, repeating), the glass lights up after its frame */
 .wf-win { --k: 0; }
 .wf-win:nth-child(11n+1) { --k: 3; }  .wf-win:nth-child(11n+2) { --k: 8; }  .wf-win:nth-child(11n+3) { --k: 1; }
@@ -509,7 +497,7 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .wf-wins > path { animation-delay: 1.6s; }
 .wf-win path { animation-duration: .7s; animation-delay: calc(1.5s + var(--k) * .075s); }
 .wf-win .wf-glass {
-  fill: rgba(255, 226, 122, .34);
+  fill: rgba(255, 221, 87, .6);
   animation: wfDraw .7s calc(1.5s + var(--k) * .075s) ease-out both, wfLight .6s calc(2.2s + var(--k) * .075s) ease-out both;
 }
 
@@ -542,14 +530,14 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .wf path { animation: none !important; }
 }
 
-/* wide screens: title and picture on the left, the code box opens to the right of them */
+/* wide screens: the title stays top left, above the roof, and the code box opens on the right, over the right wing */
 @media (min-width: 700px) and (min-aspect-ratio: 4/3) {
   .splash { --sp-card-w: min(440px, 46vw); }
-  .sp-stage { flex-direction: row; justify-content: center; }
+  .sp-stage { flex-direction: row; justify-content: space-between; align-items: stretch; margin: 0 auto; }
+  .sp-intro { align-self: flex-start; gap: 6px; }
   .sp-title { font-size: clamp(2.1rem, min(4.6vw, 9.5vh), 4.4rem); }
-  .sp-picture { width: min(40vw, 520px, 80vh); }
   .sp-login {
-    grid-template-rows: 1fr; flex: none; width: 0; margin-left: 0;
+    align-self: center; grid-template-rows: 1fr; flex: none; width: 0; margin-left: 0;
     transition: width .8s cubic-bezier(.2, .9, .3, 1), margin-left .8s cubic-bezier(.2, .9, .3, 1), opacity .5s;
   }
   .sp-login-in { width: var(--sp-card-w); }
@@ -560,17 +548,21 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .sp-card { gap: 10px; padding: 12px 16px 14px; }
   .sp-input { font-size: 1.6rem; padding: 6px 12px; }
 }
+/* narrow screens: the drawing is smaller than the window, so its lines get thicker to stay visible */
+@media (max-width: 700px) {
+  .wf { stroke-width: 1.8; }
+  .wf-fine path { stroke-width: 1.1; }
+}
 
 @keyframes spDraw { to { stroke-dashoffset: 0; } }
 @keyframes spCloud { from { transform: translateX(-220px); } to { transform: translateX(calc(100vw + 220px)); } }
 @keyframes spTwinkle { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
 @keyframes spDrop { 0% { opacity: 0; transform: translateY(-1.3em) scale(.5) rotate(-24deg); } 100% { opacity: 1; transform: none; } }
 @keyframes spJig { 0%, 100% { transform: none; } 50% { transform: translateY(-.07em) rotate(-2deg); } }
-@keyframes spFloat { 50% { transform: translateY(-8px); } }
-@keyframes spPop { 0% { opacity: 0; transform: scale(.4) rotate(14deg) translateY(40px); } 100% { opacity: 1; transform: none; } }
 @keyframes spFade { from { opacity: 0; } }
 @keyframes wfDraw { from { stroke-dashoffset: 1; } }
-@keyframes wfLight { from { fill: rgba(255, 226, 122, 0); } }
+@keyframes wfLight { from { fill: rgba(255, 221, 87, 0); } }
+@keyframes wfFill { from { fill-opacity: 0; } }
 @keyframes spWave { 0%, 100% { transform: skewY(-3deg) scaleX(1); } 50% { transform: skewY(3deg) scaleX(.94); } }
 
 /* ----------------------------------------------------------- responsive */
