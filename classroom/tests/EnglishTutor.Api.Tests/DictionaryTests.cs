@@ -73,14 +73,46 @@ public class DictionaryTests
             """);
 
         Assert.Equal(["dog", "blue"], dictionary.Words.Select(w => w.Key));
-        Assert.Equal("🔤", dictionary.Words[1].Visual);
         Assert.Equal(
             [
                 "dictionary.csv, 3. sor: a(z) 'Dog' szó már szerepel - kihagyva.",
                 "dictionary.csv, 4. sor: hiányzik a téma, az angol vagy a magyar szó - kihagyva.",
-                "dictionary.csv, 5. sor: a(z) 'blue' szóhoz nincs emoji.",
+                "dictionary.csv: 1 szóhoz nincs kép (pl. blue) - ezeket szöveges feladatokban gyakorolják.",
             ],
             dictionary.Warnings);
+    }
+
+    [Fact]
+    public void KeepsWordsWithoutPictureAndWarnsOnceWithAFewExamples()
+    {
+        var dictionary = Build("""
+            topic;english;hungarian;emoji
+            Szavak;the;a;
+            Szavak;of;-nak;
+            Szavak;to;hoz;
+            Szavak;and;és;
+            Szavak;in;-ban;
+            Szavak;is;van;
+            Szavak;dog;kutya;🐶
+            """);
+
+        Assert.Equal(7, dictionary.Words.Count);
+        Assert.Equal(6, dictionary.Words.Count(w => w.Visual.Length == 0));
+        Assert.Equal("🐶", dictionary.Words[^1].Visual);
+        Assert.Equal(
+            ["dictionary.csv: 6 szóhoz nincs kép (pl. the, of, to, and, in) - ezeket szöveges feladatokban gyakorolják."],
+            dictionary.Warnings);
+    }
+
+    [Fact]
+    public void TopicEmojiIsABookWhenItsFirstWordHasNoPicture()
+    {
+        var dictionary = Build("""
+            topic;english;hungarian;emoji
+            Szavak;the;a;
+            """);
+
+        Assert.Equal("📚", Assert.Single(dictionary.Topics).Emoji);
     }
 
     [Fact]

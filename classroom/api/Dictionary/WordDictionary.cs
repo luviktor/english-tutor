@@ -2,7 +2,7 @@ namespace EnglishTutor.Api.Dictionary;
 
 /// <param name="Key">Lower-case first English spelling; pupils' progress is keyed by it.</param>
 /// <param name="Alts">Every accepted English spelling, the shown one first.</param>
-/// <param name="Visual">An emoji, a colour ("color:#ff8800") or an image ("img:cat.png").</param>
+/// <param name="Visual">An emoji, a colour ("color:#ff8800") or an image ("img:cat.png"); empty when the word has no picture.</param>
 public sealed record Word(string Key, string Topic, string English, IReadOnlyList<string> Alts, string Hu, string Visual);
 
 public sealed record Topic(string Name, string Emoji, string Color);
@@ -45,13 +45,14 @@ public sealed record WordDictionary(IReadOnlyList<Word> Words, IReadOnlyList<Top
                 warnings.Add($"dictionary.csv, {row.Line}. sor: a(z) '{alts[0]}' szó már szerepel - kihagyva.");
                 continue;
             }
-            var visual = row.Get("emoji");
-            if (visual.Length == 0)
-            {
-                warnings.Add($"dictionary.csv, {row.Line}. sor: a(z) '{alts[0]}' szóhoz nincs emoji.");
-                visual = "🔤";
-            }
-            words.Add(new Word(key, topic, alts[0], alts, hungarian, visual));
+            words.Add(new Word(key, topic, alts[0], alts, hungarian, row.Get("emoji")));
+        }
+
+        var withoutPicture = words.Where(w => w.Visual.Length == 0).ToList();
+        if (withoutPicture.Count > 0)
+        {
+            var examples = string.Join(", ", withoutPicture.Take(5).Select(w => w.English));
+            warnings.Add($"dictionary.csv: {withoutPicture.Count} szóhoz nincs kép (pl. {examples}) - ezeket szöveges feladatokban gyakorolják.");
         }
 
         if (words.Count == 0)
@@ -83,7 +84,7 @@ public sealed record WordDictionary(IReadOnlyList<Word> Words, IReadOnlyList<Top
         {
             var first = words.First(w => w.Topic == t.Name);
             var emoji = t.Emoji.Length > 0 ? t.Emoji
-                : first.Visual.StartsWith("color:") || first.Visual.StartsWith("img:") ? "📚"
+                : first.Visual.Length == 0 || first.Visual.StartsWith("color:") || first.Visual.StartsWith("img:") ? "📚"
                 : first.Visual;
             var color = t.Color.Length > 0 ? t.Color : DefaultColors[i % DefaultColors.Length];
             return new Topic(t.Name, emoji, color);
