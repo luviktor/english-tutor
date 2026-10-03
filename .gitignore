@@ -54,3 +54,9 @@ npm-debug.log
 
 # GitHub Pages build output
 _site/
+
+# Classroom app (.NET API)
+bin/
+obj/
+classroom/api/local.settings.json
+classroom/api/publish/
