@@ -26,12 +26,12 @@ export function initHud() {
   refs.levelChip = level;
   refs.streakChip = el('div', { class: 'chip chip-streak', title: 'Napok egymás után' }, '🔥 ', refs.streak);
   refs.starChip = el('div', { class: 'chip chip-stars', title: 'Csillagok' }, '⭐ ', refs.stars);
-  hud.replaceChildren(el('div', { class: 'hud-inner' },
+  hud.replaceChildren(
     refs.home,
-    el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'), el('span', { class: 'hud-title' }, APP_TITLE)),
+    el('div', { class: 'hud-title' }, APP_TITLE),
     el('div', { class: 'hud-chips' }, refs.warn, level, refs.streakChip, refs.starChip,
       el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout },
-        el('span', { class: 'user-name' }, state.pupil.name), logoutIcon()))));
+        el('span', { class: 'user-name' }, state.pupil.name), logoutIcon())));
   onChange(update);
   onScreen(name => { refs.home.classList.toggle('hidden', name === 'home'); });
   update();
