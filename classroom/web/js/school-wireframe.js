@@ -107,13 +107,13 @@ function roofs() {
     path(ring([487.3, 73], [489.6, 66.5], [491.9, 73], [489.6, 79.5])),
     path(line(...[...BELL_L].reverse(), ...BELL_R.slice(1))),
     path(ring([435.5, 143.5], [546, 143.5], [548, 148], [437, 148])),
-    // left wing: ridge, hips, chimney
-    // the ridge runs into the tower, the hips come down to the corners of the eave, so the roof closes against the walls
-    path(along(LEFT, 158.2, 124, 441.5) + line([124, ridgeL], [92, LEFT.y(92, 197)]) + line([424, ridgeR], [383, 209.1])),
+    // left wing: the ridge (interrupted by the chimney, then level into the tower), the hips come down to the
+    // corners of the eave, so the roof closes against the walls
+    path(along(LEFT, 158.2, 124, 162) + along(LEFT, 158.2, 179, 424) + line([424, ridgeR], [441.5, ridgeR])
+      + line([124, ridgeL], [92, LEFT.y(92, 197)]) + line([424, ridgeR], [383, 209.1])),
     path(line([162, 232], [162, 214], [179, 214], [179, 227])),
-    // right wing: ridge, hip, the end against the pavilion, vent pipes
+    // right wing: ridge, hip, the end against the pavilion
     path(along(RIGHT, 164, 548, 749) + line([548, 164], [600, 206.5]) + line([749, RIGHT.y(749, 164)], [749, RIGHT.y(749, 191.4)])),
-    path(line([634, 192], [634, 176]) + line([641, 193], [641, 172]) + line([647.5, 194], [647.5, 175])),
     // the end wing behind the pavilion
     path(line([780, 246], [827, 267], [827, 270]) + line([780, 246], [780, 251])),
     // the gable of the pavilion
@@ -139,10 +139,10 @@ function tower() {
     // balcony with the crest below it
     path(ring([476, 322], [519, 322], [519, 326.5], [476, 326.5])),
     path(ring([491.5, 327], [504.5, 327], [504.5, 340], [491.5, 340])),
-    // the arched doorway and its doors, the plinth
+    // the arched doorway and its doors, and the string course beside it (it stops at the pilasters)
     path(line([477, 414.3], [477, 366.5], [481, 353.7], [497, 341], [513, 353.7], [519.4, 366.5], [519.4, 414.3])),
     path(`M479.5 414V373Q498 365 516.5 373V414Z` + line([498, 369], [498, 414]) + line([479.5, 392], [516.5, 392])),
-    path(line([441.5, 405], [477, 405]) + line([519.4, 405], [547.7, 405]) + line([441.5, 369.7], [477, 369.7]) + line([519.4, 369.7], [547.7, 369.7])),
+    path(line([459, 369.7], [477, 369.7]) + line([519.4, 369.7], [531, 369.7])),
     group('wf-fine', path(rustication.join(''))));
 }
 
@@ -169,12 +169,11 @@ function windows() {
     path(`M555 278V240Q555 230 567.8 230Q580.5 230 580.5 240V278`));
 }
 
-/** The flag over the balcony: three waving bands. */
+/** The flag over the balcony: a plain rectangle of three bands. It is straight here; the page's CSS may sway it. */
 function flag() {
-  const top = [[488, 298], [504, 295.5], [520, 300]], bottom = [[488, 307.5], [504, 305], [520, 309.5]];
-  const at = (i, k) => top[i].map((v, a) => v + (bottom[i][a] - v) * k);
-  const band = (k, cls) => path(ring(at(0, k / 3), at(1, k / 3), at(2, k / 3), at(2, (k + 1) / 3), at(1, (k + 1) / 3), at(0, (k + 1) / 3)), cls);
-  return group('wf-flag', band(0, 'wf-red'), band(1, 'wf-white'), band(2, 'wf-green'));
+  const left = 488, right = 520, top = 295, band = 4;
+  const strip = (k, cls) => path(ring([left, top + k * band], [right, top + k * band], [right, top + (k + 1) * band], [left, top + (k + 1) * band]), cls);
+  return group('wf-flag', strip(0, 'wf-red'), strip(1, 'wf-white'), strip(2, 'wf-green'));
 }
 
 /** The whole picture; scales with its container. The ground line overflows the viewBox on purpose,
