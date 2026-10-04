@@ -64,7 +64,7 @@ Limits of managed Functions to keep in mind:
 | Name | Content |
 |---|---|
 | `COSMOS_CONNECTION_STRING` | Connection string of the Cosmos DB account |
-| `PUPILS_JSON` | `[{"id":"p01","name":"Anna","password":"piros-roka-7"}, ...]` (example values) |
+| `PUPILS_JSON` | `[{"id":"p01","name":"Kék bagoly","password":"piros-roka-7"}, ...]` (example values; `name` is an alias) |
 | `TEACHERS_JSON` | `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"}, ...]` (example values); each teacher sees the whole class |
 
 Locally, the same values go in `classroom/api/local.settings.json`, which is gitignored. **The GitHub repository is public, so passwords are never committed.**
@@ -178,7 +178,7 @@ Alternative without the emulator: point `local.settings.json` at a separate dev 
 Each phase gets its own `feature/<topic>` branch with small commits.
 
 0. **Setup.**
-   - You: create the subscription and upgrade it to pay-as-you-go before day 30. Create the resource group `rg-englishtutor` in West Europe and the €1 budget alert.
+   - You: create the subscription and upgrade it to pay-as-you-go before day 30. Create the resource group `rg-englishtutor` (West Europe; its region doesn't matter, the resources go to East US 2) and the €1 budget alert.
    - Claude: `infra/main.bicep` (Static Web App `swa-englishtutor`, Cosmos account `cosmos-englishtutor-<suffix>` with free tier and the throughput limit, database, container) and the deployment steps.
 1. **Skeleton.**
    - Add `classroom/` with the copied frontend, `EnglishTutor.Api`, `GET /api/dictionary`, the SWA workflow and the local `swa start` setup.
@@ -200,13 +200,16 @@ Each phase gets its own `feature/<topic>` branch with small commits.
 | Table Storage | Costs cents, and its 64 KB limit per field doesn't fit the progress object. |
 | Generated login codes and QR cards, teacher manages pupils in the app | More work than this class needs; passwords in configuration are enough. |
 | Built-in Static Web Apps login (Microsoft/GitHub) for the teacher | Not needed while a single teacher password is enough; it can be added later without other changes. |
+| Everything in West Europe | Static Web Apps Free has no other European region, and Azure refuses new tenants in West Europe (`RequestDisallowedByAzure`). A free support request would lift it; the user preferred not to file one. |
+| API in East US 2, Cosmos DB in the EU | About 90 ms more per database call, and no real gain: the API runs in the US and handles the data there anyway. |
+| Own Functions app in an EU region, Static Web App in the US for the static files only | Needs the Standard plan (about $9/month) or a cross-origin API (CORS, CSP and pipeline changes, a storage account). The upgrade path if East US 2 turns out to be unacceptable. |
 
 ## Risks
 
 - **No uptime guarantee:** Static Web Apps Free has no SLA. The Standard plan (about $9/month) adds one.
 - **Cold start:** the first request after an idle period takes a few seconds, so the login screen shows a spinner.
 - **Guessable passwords:** short passwords can be guessed by a script. That's accepted given what's at stake (game progress only).
-- **Children's data:** store only first names or nicknames, in an EU region (West Europe). Ask the school whether parents need a data-protection notice.
+- **Children's data:** everything runs in East US 2 (see below), so the data is in the US. Nothing identifies a child there: pupils have an alias and a code, never their own name or nickname (the API even drops `player.name` before saving), and the list of who is who stays on paper with the two mentors. It is still personal data in the legal sense, because the mentors can link it to a child. The parents therefore get the notice and consent form (`docs/szuloi-tajekoztato.docx`) and agree per child, and the data is deleted at the end of the school year. The user is a parent of one of the children, not a teacher, and runs the app privately with two mentors.
 
 ## Open questions
 

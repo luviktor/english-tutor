@@ -17,13 +17,18 @@ screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a 
 
 | Setting | Content |
 |---|---|
-| `PUPILS_JSON` | `[{"id":"p01","name":"Anna","password":"piros-roka-7"}, ...]` |
+| `PUPILS_JSON` | `[{"id":"p01","name":"Kék bagoly","password":"piros-roka-7"}, ...]` |
 | `TEACHERS_JSON` | `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"}, ...]` |
 | `COSMOS_CONNECTION_STRING` | Where the progress is stored |
 
 * A pupil types only their own password; it identifies them. Passwords are compared by their letters and
   digits only, ignoring case and accents: `Piros róka 7` works for `piros-roka-7`. Give each pupil a
-  different, easy one, e.g. colour–animal–number. Use first names or nicknames only.
+  different, easy one, e.g. colour–animal–number.
+* **Pupils get aliases, not their own names:** `name` is a made-up player name or a code that has nothing to
+  do with the child's name or nickname. The parents are told that nothing in Azure identifies their child, so
+  keep the list of who is who on paper, never in Azure or in the repository. The API drops `player.name`
+  before saving, so the database holds no name at all; the alias exists only in the `PUPILS_JSON` setting
+  and in the browser while the child plays.
 * `id`: English letters, digits, `-` and `_`. **Progress is stored by the id**, so a pupil keeps it when
   their password changes. Changing a password logs the pupil out on every device.
 * Each teacher has their own long password (at least 8 letters or digits) and the same kind of `id` and

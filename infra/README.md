@@ -17,7 +17,8 @@ Commands below are for Git Bash (or any bash). In PowerShell, quoting JSON for `
 
 1. Create an Azure subscription. A free account is **disabled after 30 days unless it is upgraded to
    pay-as-you-go**; upgrade it before day 30. The always-free tiers used here stay at €0 after the upgrade.
-2. Sign in and create the resource group in West Europe:
+2. Sign in and create the resource group. Its region only says where the group's metadata is kept; the
+   resources themselves go to East US 2 (see *Regions* below), whatever region the group is in:
 
    ```bash
    az login
@@ -41,6 +42,22 @@ If the deployment fails with a free-tier error, another account in the subscript
 
 Check in the portal that the Cosmos DB account's **Overview** shows *Free Tier Discount: Opted In*.
 
+### Regions
+
+Both resources are deployed to **East US 2**, so the API and the database are a few milliseconds apart.
+
+* Static Web Apps Free exists only in Central US, East US 2, West US 2, West Europe and East Asia, and the
+  region is where the managed API runs (the static files are served from everywhere). Europe has only West
+  Europe, and Azure currently refuses *new tenants* there (`RequestDisallowedByAzure`, [`aka.ms/locationineligible`](https://learn.microsoft.com/azure/azure-resource-manager/troubleshooting/error-region-access-policy)).
+  That is the case for a new subscription, and it affects the Static Web App and Cosmos DB alike. Remedy:
+  a free support request, quota type *Unable to access West Europe region*. Until it is granted, East US 2
+  is the nearest region that works.
+* A Static Web App's region can't be changed later; moving means creating it again and updating the
+  `AZURE_STATIC_WEB_APPS_API_TOKEN` secret.
+* If Cosmos DB refuses East US 2 with the same error, deploy it elsewhere:
+  `--parameters cosmosLocation=<region>` (costs about 90 ms more per database call from the API).
+* The consequence for the children's data is described in the *Risks* section of the plan.
+
 ## 3. The API's settings
 
 The API reads three environment variables (see [`classroom/README.md`](../classroom/README.md#login)). They are
@@ -61,7 +78,9 @@ The passwords are best typed in the portal, so they don't end up in the shell hi
   the whole list on one line, for example
   `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"},{"id":"t02","name":"Béla bácsi","password":"masik-tanari-jelszo-2"}]`.
 * `PUPILS_JSON`: the whole list on one line, for example
-  `[{"id":"p01","name":"Anna","password":"piros-roka-7"},{"id":"p02","name":"Bence","password":"kek-bagoly-3"}]`.
+  `[{"id":"p01","name":"Kék bagoly","password":"piros-roka-7"},{"id":"p02","name":"Zöld béka","password":"kek-bagoly-3"}]`.
+  Use aliases in `name`, never the children's own names or nicknames (see
+  [`classroom/README.md`](../classroom/README.md#login)); the list of who is who stays on paper.
 
 Keep both lists with the real passwords outside the repository. Ids and passwords must differ across the
 two lists.
