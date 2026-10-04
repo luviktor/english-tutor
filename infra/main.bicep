@@ -5,14 +5,18 @@
 //     database      englishtutor                    1000 RU/s shared by its containers
 //     container     progress                        one document per pupil, partition key /id
 //
-// Deploy into the resource group rg-englishtutor (West Europe); see infra/README.md.
+// Deploy into the resource group rg-englishtutor; see infra/README.md. Every resource goes to East US 2,
+// whatever the group's own region is (that only says where the group's metadata is kept).
 // Secrets are not set here: the API's environment variables are set with the Azure CLI, so that
 // redeploying this template never wipes them.
 
 targetScope = 'resourceGroup'
 
-@description('Region of every resource. Static Web Apps Free is available in westeurope.')
-param location string = resourceGroup().location
+@description('Region of the Static Web App, whose managed API runs there. Static Web Apps Free exists only in centralus, eastus2, westus2, westeurope and eastasia, and new tenants are currently refused in westeurope (https://aka.ms/locationineligible). eastus2 is the nearest of the others to Hungary.')
+param location string = 'eastus2'
+
+@description('Region of the Cosmos DB account. Keep it equal to the Static Web App so that the API and the database are a few milliseconds apart; change it only if Cosmos DB refuses the region.')
+param cosmosLocation string = location
 
 @description('Makes the Cosmos DB account name globally unique.')
 param cosmosSuffix string = take(uniqueString(resourceGroup().id), 6)
@@ -36,7 +40,7 @@ resource staticWebApp 'Microsoft.Web/staticSites@2024-11-01' = {
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
   name: 'cosmos-${appName}-${cosmosSuffix}'
-  location: location
+  location: cosmosLocation
   kind: 'GlobalDocumentDB'
   properties: {
     databaseAccountOfferType: 'Standard'
@@ -51,7 +55,7 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
     }
     locations: [
       {
-        locationName: location
+        locationName: cosmosLocation
         failoverPriority: 0
         isZoneRedundant: false
       }

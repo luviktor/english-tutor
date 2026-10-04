@@ -17,7 +17,8 @@ Commands below are for Git Bash (or any bash). In PowerShell, quoting JSON for `
 
 1. Create an Azure subscription. A free account is **disabled after 30 days unless it is upgraded to
    pay-as-you-go**; upgrade it before day 30. The always-free tiers used here stay at €0 after the upgrade.
-2. Sign in and create the resource group in West Europe:
+2. Sign in and create the resource group. Its region only says where the group's metadata is kept; the
+   resources themselves go to East US 2 (see *Regions* below), whatever region the group is in:
 
    ```bash
    az login
@@ -40,6 +41,22 @@ The Cosmos free tier can be used by **one account per subscription**, and only w
 If the deployment fails with a free-tier error, another account in the subscription already uses it.
 
 Check in the portal that the Cosmos DB account's **Overview** shows *Free Tier Discount: Opted In*.
+
+### Regions
+
+Both resources are deployed to **East US 2**, so the API and the database are a few milliseconds apart.
+
+* Static Web Apps Free exists only in Central US, East US 2, West US 2, West Europe and East Asia, and the
+  region is where the managed API runs (the static files are served from everywhere). Europe has only West
+  Europe, and Azure currently refuses *new tenants* there (`RequestDisallowedByAzure`, [`aka.ms/locationineligible`](https://learn.microsoft.com/azure/azure-resource-manager/troubleshooting/error-region-access-policy)).
+  That is the case for a new subscription, and it affects the Static Web App and Cosmos DB alike. Remedy:
+  a free support request, quota type *Unable to access West Europe region*. Until it is granted, East US 2
+  is the nearest region that works.
+* A Static Web App's region can't be changed later; moving means creating it again and updating the
+  `AZURE_STATIC_WEB_APPS_API_TOKEN` secret.
+* If Cosmos DB refuses East US 2 with the same error, deploy it elsewhere:
+  `--parameters cosmosLocation=<region>` (costs about 90 ms more per database call from the API).
+* The consequence for the children's data is described in the *Risks* section of the plan.
 
 ## 3. The API's settings
 
