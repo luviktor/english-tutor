@@ -53,6 +53,16 @@ public class RosterTests
     }
 
     [Fact]
+    public void NamesATeacherByIdOrFallsBackToTheId()
+    {
+        var roster = Roster.Parse(Pupils, Teachers);
+
+        Assert.Equal("Éva néni", roster.TeacherName("t01"));
+        Assert.Equal("Béla bácsi", roster.TeacherName("T02"));
+        Assert.Equal("t99", roster.TeacherName("t99"));
+    }
+
+    [Fact]
     public void SkipsATeacherWithAShortPassword()
     {
         var roster = Roster.Parse(Pupils, """

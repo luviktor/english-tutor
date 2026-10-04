@@ -156,7 +156,9 @@ Validation happens in the API, with Hungarian messages; the form checks the same
 - **Order:** topics in their `order`; entries by topic, then alphabetically.
 - **Empty topics:** topics without entries are included for the teachers; the pupils' topic screen skips them.
 - **`warnings`:** hints for the teachers instead of CSV errors: entries without a picture, possible
-  duplicates, and topics with fewer than 4 entries (too few for good multiple-choice and pair games).
+  duplicates, and topics with fewer than 4 entries (too few for good multiple-choice and pair games). An entry
+  whose topic no longer exists (it can't happen through the API, but a race or a manual edit could cause it)
+  is left out of `words` and named in a warning.
 - **Login:** the request carries the password header like every other call. Without a valid password the
   endpoint returns 401.
 - **Caching:**

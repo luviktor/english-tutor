@@ -55,6 +55,10 @@ public sealed partial class Roster
     /// <summary>Configuration mistakes, in Hungarian for the teacher's view. They never contain passwords.</summary>
     public IReadOnlyList<string> Problems { get; }
 
+    /// <summary>The teacher's name, or the id itself when that teacher is no longer in TEACHERS_JSON.</summary>
+    public string TeacherName(string id) =>
+        Teachers.FirstOrDefault(t => string.Equals(t.Id, id, StringComparison.OrdinalIgnoreCase))?.Name ?? id;
+
     public Identity? Identify(string? password)
     {
         var key = NormalizePassword(password);
