@@ -78,7 +78,9 @@ The passwords are best typed in the portal, so they don't end up in the shell hi
   the whole list on one line, for example
   `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"},{"id":"t02","name":"Béla bácsi","password":"masik-tanari-jelszo-2"}]`.
 * `PUPILS_JSON`: the whole list on one line, for example
-  `[{"id":"p01","name":"Anna","password":"piros-roka-7"},{"id":"p02","name":"Bence","password":"kek-bagoly-3"}]`.
+  `[{"id":"p01","name":"Kék bagoly","password":"piros-roka-7"},{"id":"p02","name":"Zöld béka","password":"kek-bagoly-3"}]`.
+  Use aliases in `name`, never the children's own names or nicknames (see
+  [`classroom/README.md`](../classroom/README.md#login)); the list of who is who stays on paper.
 
 Keep both lists with the real passwords outside the repository. Ids and passwords must differ across the
 two lists.
