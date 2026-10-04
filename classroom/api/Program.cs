@@ -18,7 +18,7 @@ builder.Services.AddSingleton(new DictionaryProvider(Path.Combine(AppContext.Bas
 
 builder.Services.AddSingleton(services =>
 {
-    var roster = Roster.Parse(config["PUPILS_JSON"], config["TEACHER_PASSWORD"]);
+    var roster = Roster.Parse(config["PUPILS_JSON"], config["TEACHERS_JSON"]);
     var logger = services.GetRequiredService<ILogger<Roster>>();
     foreach (var problem in roster.Problems)
     {

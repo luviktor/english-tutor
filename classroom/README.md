@@ -12,13 +12,13 @@ The English-learning game of [`demo/`](../demo/) for a whole class, hosted on Az
 
 ## Login
 
-There are no accounts: the teacher lists the pupils and their passwords in the API's settings. The login
+There are no accounts: the pupils, the teachers and their passwords are listed in the API's settings. The login
 screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a copy of the demo's file).
 
 | Setting | Content |
 |---|---|
 | `PUPILS_JSON` | `[{"id":"p01","name":"Anna","password":"piros-roka-7"}, ...]` |
-| `TEACHER_PASSWORD` | A long password for the teacher (at least 8 letters or digits) |
+| `TEACHERS_JSON` | `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"}, ...]` |
 | `COSMOS_CONNECTION_STRING` | Where the progress is stored |
 
 * A pupil types only their own password; it identifies them. Passwords are compared by their letters and
@@ -26,18 +26,21 @@ screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a 
   different, easy one, e.g. colour–animal–number. Use first names or nicknames only.
 * `id`: English letters, digits, `-` and `_`. **Progress is stored by the id**, so a pupil keeps it when
   their password changes. Changing a password logs the pupil out on every device.
+* Each teacher has their own long password (at least 8 letters or digits) and the same kind of `id` and
+  `name`. The login shows the teacher's name in the top right.
+* Ids and passwords must be unique across both lists. If a pupil clashes with a teacher, the pupil is left out.
 * The browser keeps the password, so a pupil types it once per device. On shared school computers they
   should log out (the name chip at the top right).
-* Mistakes in `PUPILS_JSON` (duplicate ids or passwords, missing names) skip that pupil; they are logged and
-  shown in the teacher's view, without the passwords.
+* Mistakes in either list (duplicate ids or passwords, missing names, too short passwords) skip that entry;
+  they are logged and shown in the teacher's view, without the passwords.
 
 ## Teacher's view
 
-With `TEACHER_PASSWORD` the login opens the class table instead of the game: every pupil with level and XP,
+A teacher's password opens the class table instead of the game: every pupil with level and XP,
 words per level (new / learning / known / gold), accuracy, current and longest streak, answers in the last
-14 days and when they last played. Columns sort on click. Below it: problems in the pupil list and the
-dictionary's status with its warnings. The data is the summary each pupil's last save stored, so it's
-always up to date and cheap to read. A teacher who wants to play adds themself to `PUPILS_JSON`.
+14 days and when they last played. Columns sort on click. Below it: problems in the pupil and teacher lists
+and the dictionary's status with its warnings. The data is the summary each pupil's last save stored, so
+it's always up to date and cheap to read. A teacher who wants to play adds themself to `PUPILS_JSON`.
 
 ## Saving
 
@@ -80,7 +83,8 @@ Run the last two from this folder, then open `http://localhost:4280`. Later, `do
 restarts the emulator; its data explorer is at `http://localhost:1234`.
 
 * `local.settings.json` is gitignored. The example points at the emulator (its well-known key) and has two
-  test pupils (`teszt-roka-1`, `teszt-bagoly-2`) and a teacher (`teszt-tanar-jelszo`). Never use these in Azure.
+  test pupils (`teszt-roka-1`, `teszt-bagoly-2`) and two test teachers (`teszt-tanar-jelszo`,
+  `teszt-tanarno-jelszo`). Never use these in Azure.
 * In Development, the API talks to the emulator over HTTPS in Gateway mode, accepts its self-signed
   certificate, and creates the database and container on first use.
 * `swa-cli.config.json` starts the Functions host (`func start`, port 7071) and serves `web/` with `/api`

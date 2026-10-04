@@ -65,7 +65,7 @@ Limits of managed Functions to keep in mind:
 |---|---|
 | `COSMOS_CONNECTION_STRING` | Connection string of the Cosmos DB account |
 | `PUPILS_JSON` | `[{"id":"p01","name":"Anna","password":"piros-roka-7"}, ...]` (example values) |
-| `TEACHER_PASSWORD` | A long password; the teacher sees the whole class |
+| `TEACHERS_JSON` | `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"}, ...]` (example values); each teacher sees the whole class |
 
 Locally, the same values go in `classroom/api/local.settings.json`, which is gitignored. **The GitHub repository is public, so passwords are never committed.**
 
@@ -79,7 +79,7 @@ Simple passwords kept in the backend; no accounts, no email addresses.
   - `POST /api/login` returns the pupil's id and name. The frontend keeps the password in localStorage and sends it in the `X-EnglishTutor-Password` header with every request, so a child types it once per device.
   - Changing a password in `PUPILS_JSON` logs out old devices automatically.
 - **Progress is keyed by the pupil id, not the password**, so a password change keeps the progress.
-- **Teacher:** the same mechanism with `TEACHER_PASSWORD`, which gives the `teacher` role.
+- **Teachers:** the same mechanism with `TEACHERS_JSON`: each teacher has their own long password, which gives the `teacher` role.
 - **Accepted risk:** someone who learns or guesses a pupil's password can see or change that child's XP.
 
 ## Data model (Cosmos DB)

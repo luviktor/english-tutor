@@ -18,7 +18,7 @@ public class ClassReportTests
               {"id": "p02", "name": "Bence", "password": "kek-bagoly-3"},
               {"id": "p03", "name": "Csilla", "password": "zold-beka-1"}
             ]
-            """, "hosszu-tanari-jelszo");
+            """, """[{"id": "t01", "name": "Éva néni", "password": "hosszu-tanari-jelszo"}]""");
         var updated = DateTimeOffset.Parse("2026-10-03T08:00:00Z");
         var rows = new[]
         {

@@ -47,7 +47,8 @@ const COLUMNS = [
   { key: 'last', label: 'Utoljára', value: p => (p.updatedAt ? Date.parse(p.updatedAt) : 0) },
 ];
 
-export function render(app) {
+/** `identity` is the { id, name, role } the login returned; its name goes on the chip. */
+export function render(app, identity) {
   let report = null;
   let sort = { key: 'name', dir: 1 };
   const body = el('div', { class: 'teacher' });
@@ -57,7 +58,7 @@ export function render(app) {
       el('span', { class: 'hud-title' }, `${APP_TITLE} – tanári nézet`)),
     el('div', { class: 'hud-chips' },
       el('button', { class: 'chip', type: 'button', onclick: load }, '🔄 Frissítés'),
-      el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout }, el('span', { class: 'user-name' }, 'Tanár'), logoutIcon()))));
+      el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout }, el('span', { class: 'user-name' }, identity.name), logoutIcon()))));
   app.append(body);
   load();
 
@@ -88,8 +89,8 @@ export function render(app) {
         kpi('🗓️', pupils.filter(p => recentTotal(p, 7) > 0).length, 'gyakorolt az elmúlt 7 napban')),
       el('section', { class: 'card table-card' }, table(), legend()),
       report.problems.length > 0 && el('section', { class: 'card warn-card' },
-        el('h3', {}, '⚠️ Hibák a tanulók listájában'),
-        el('p', { class: 'small' }, 'A PUPILS_JSON és a TEACHER_PASSWORD beállítás a Static Web App környezeti változói között van.'),
+        el('h3', {}, '⚠️ Hibák a tanulók és tanárok listájában'),
+        el('p', { class: 'small' }, 'A PUPILS_JSON és a TEACHERS_JSON beállítás a Static Web App környezeti változói között van.'),
         el('ul', {}, report.problems.map(t => el('li', {}, t)))),
       el('section', { class: 'card' },
         el('h3', {}, '📚 Szótár'),
