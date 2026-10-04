@@ -17,7 +17,7 @@ Differences from the text below, decided during the implementation:
 
 Next, before the pupils get access: the teachers' own dictionary in Cosmos DB, planned in
 [`teacher-dictionary.md`](teacher-dictionary.md) (2026-10-04). It replaces the bundled CSV words, which stay
-in the demo.
+in the demo, and gives each of the two teachers their own password (`TEACHERS_JSON` instead of `TEACHER_PASSWORD`).
 
 ## Requirements
 

@@ -15,17 +15,45 @@ initial set of words, and only then do the pupils get their passwords.
   - The class practises exactly what the teachers entered; demo words and teacher words are never mixed.
 - **Stored in Cosmos DB, in a new container `dictionary`** of the existing `englishtutor` database. It shares the
   database's free 1000 RU/s, so it costs nothing extra.
-- **The whole dictionary is one logical partition.**
-  - Partition key `/classId`, for now always `"class"`.
+- **One class, and its whole dictionary is one logical partition.**
+  - Partition key `/classId`, always `"class"`.
   - The dictionary is always read as a whole, so this makes reading it a single-partition query, and several
     documents can be changed in one transactional batch.
-  - If several classes ever use the app, each class gets its own partition.
+  - If several classes ever use the app, each class gets its own partition without a new container.
 - **Words and phrases are the same kind of entry**, told apart by `kind: "word" | "phrase"`. Grouping (for
   example greetings) is what topics are for.
 - **An entry's id is generated and never changes.** It is also the key pupils' progress is saved under, so
   correcting a spelling keeps their progress.
 - **Topics are documents too**, with a name, emoji, colour and order. Entries refer to their topic by id, so
   renaming a topic is a single write.
+- **An entry may have a note**: a short Hungarian hint on when it is used, for example "How do you do?" →
+  *hivatalos bemutatkozáskor*.
+- **Each teacher has their own password.** `TEACHERS_JSON` replaces `TEACHER_PASSWORD`, so the dictionary
+  records who changed what (see [Teacher passwords](#teacher-passwords)).
+- **The dictionary needs a login.**
+  - `GET /api/dictionary` is open to anyone today. It now holds the class's own list and the teachers' names,
+    so it requires a pupil or teacher password.
+  - The app loads the dictionary only after login anyway.
+- **No import.** The teachers type the initial set in the form.
+
+## Teacher passwords
+
+`TEACHERS_JSON` replaces `TEACHER_PASSWORD`. It has the same shape as `PUPILS_JSON` (example values):
+
+```json
+[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"}, {"id":"t02","name":"...","password":"..."}]
+```
+
+- **Passwords:** at least 8 letters or digits, as today. They must differ from each other and from every pupil's
+  password.
+- **Ids:** they follow the pupils' rules and must not repeat a pupil's id. A teacher's id is what `updatedBy`
+  stores.
+- **Login** returns the teacher's id and name, and the teacher's view shows the name instead of "Tanár".
+- **Mistakes in the list** are reported like those in `PUPILS_JSON`: in the teacher's view and the API's log,
+  without the passwords.
+- **No transition period:** `TEACHER_PASSWORD` simply goes away, because nobody uses the app yet.
+- **Where the setting is documented:** the Static Web App's environment variables, `local.settings.example.json`,
+  `classroom/README.md`, `infra/README.md` and `docs/azure-plan.md`.
 
 ## Documents
 
@@ -42,7 +70,9 @@ Entry:
   "english": "How do you do?",
   "alsoAccepted": [],
   "hu": "Üdvözlöm!",
+  "note": "hivatalos bemutatkozáskor",
   "visual": "",
+  "updatedBy": "t01",
   "updatedAt": "2026-10-04T08:15:00Z"
 }
 ```
@@ -59,6 +89,7 @@ Topic:
   "emoji": "👋",
   "color": "#74c0fc",
   "order": 3,
+  "updatedBy": "t01",
   "updatedAt": "2026-10-04T08:10:00Z"
 }
 ```
@@ -69,10 +100,13 @@ Topic:
   [Two teachers](#two-teachers)).
 - `english`: the spelling that is shown and spoken.
 - `alsoAccepted`: other spellings the typing game accepts, for example `thanks` next to `thank you`.
+- `note`: optional. A short Hungarian hint, shown to the pupils under the Hungarian meaning (see
+  [Pupils' side](#pupils-side)).
 - `visual`: an emoji, a colour (`color:#rrggbb`), or empty for no picture. The games already practise words
   without a picture with text only. `img:` pictures wait for the pictures phase in
   [`azure-plan.md`](azure-plan.md).
 - `kind`: stored and returned, but the games don't use it yet (see [Later](#later)).
+- `updatedBy`: the id of the teacher who made the last change. Deletions are not recorded.
 
 Validation happens in the API, with Hungarian messages; the form checks the same rules:
 
@@ -81,6 +115,7 @@ Validation happens in the API, with Hungarian messages; the form checks the same
 | `kind` | `word` or `phrase`. The form suggests `phrase` when the English text has a space; the teacher can change it. |
 | `english` and each `alsoAccepted` | 1–60 characters, at least one letter a–z, no line breaks; at most 5 other spellings |
 | `hu` | 1–60 characters |
+| `note` | Empty, or up to 80 characters without line breaks |
 | `topicId` | An existing topic |
 | `visual` | Empty, one emoji, or `color:#rrggbb` |
 | Duplicates | No spelling of an entry may match a spelling of another entry. They are compared by letters only, ignoring case, the way the typing game compares answers. The check reads Cosmos directly, not the cache. |
@@ -94,10 +129,15 @@ Validation happens in the API, with Hungarian messages; the form checks the same
 
 ```json
 {
-  "topics": [{ "id": "t-4m8p2w6c3n", "name": "Köszönések", "emoji": "👋", "color": "#74c0fc", "revision": 1 }],
+  "topics": [{
+    "id": "t-4m8p2w6c3n", "name": "Köszönések", "emoji": "👋", "color": "#74c0fc", "revision": 1,
+    "updatedBy": "Éva néni", "updatedAt": "2026-10-04T08:10:00Z"
+  }],
   "words": [{
     "key": "e-7k3j9x2q4m", "topicId": "t-4m8p2w6c3n", "topic": "Köszönések", "kind": "phrase",
-    "english": "How do you do?", "alts": ["How do you do?"], "hu": "Üdvözlöm!", "visual": "", "revision": 1
+    "english": "How do you do?", "alts": ["How do you do?"], "hu": "Üdvözlöm!",
+    "note": "hivatalos bemutatkozáskor", "visual": "", "revision": 1,
+    "updatedBy": "Éva néni", "updatedAt": "2026-10-04T08:15:00Z"
   }],
   "warnings": []
 }
@@ -107,23 +147,30 @@ Validation happens in the API, with Hungarian messages; the form checks the same
   - `key` is now the entry's id.
   - `alts` is `english` followed by `alsoAccepted`.
   - `topic` is the topic's name; the games group words by it.
-- **New fields:** `topicId`, `kind` and `revision` on words, `id` and `revision` on topics. The teachers' forms
-  need them.
+- **New fields, needed by the teachers' list and forms:**
+  - `topicId`, `kind` and `note` on words;
+  - `id` on topics;
+  - `revision`, `updatedBy` and `updatedAt` on both.
+- **`updatedBy`** is the teacher's name, looked up in `TEACHERS_JSON`. If that teacher has since been removed,
+  it shows their id instead.
 - **Order:** topics in their `order`; entries by topic, then alphabetically.
 - **Empty topics:** topics without entries are included for the teachers; the pupils' topic screen skips them.
 - **`warnings`:** hints for the teachers instead of CSV errors: entries without a picture, possible
   duplicates, and topics with fewer than 4 entries (too few for good multiple-choice and pair games).
+- **Login:** the request carries the password header like every other call. Without a valid password the
+  endpoint returns 401.
 - **Caching:**
   - `DictionaryProvider` keeps the built JSON and its ETag for 30 s per Functions instance. A change made
     through that instance clears it at once.
-  - `Cache-Control: no-cache` with the ETag replaces `public, max-age=300`. Browsers check every time, get 304
-    when nothing changed, and see new words at the next app load.
+  - `Cache-Control: private, no-cache` with the ETag replaces `public, max-age=300`. Browsers check every time,
+    get 304 when nothing changed, and see new words at the next app load.
 - **When Cosmos fails:** the API serves the last good copy and logs the error. If it has no copy yet, it returns
   503, and the app shows "Nem érem el a szervert".
 
 ## Teacher API
 
-Every endpoint needs the teacher password (`roster.AuthorizeAsync(req, Roles.Teacher)`).
+Every endpoint needs a teacher's password (`roster.AuthorizeAsync(req, Roles.Teacher)`). Each change stores that
+teacher's id in `updatedBy`.
 
 | Endpoint | Purpose |
 |---|---|
@@ -143,29 +190,30 @@ Every endpoint needs the teacher password (`roster.AuthorizeAsync(req, Roles.Tea
 
 ### Two teachers
 
-Both teachers may edit at the same time. Today they would share `TEACHER_PASSWORD`.
+Both teachers may edit at the same time.
 
 - **Stale changes:** a change based on an old `revision` gets 409 with the current document, like a stale
-  progress save. The form then shows "Közben a másik tanár módosította" with the current values. The Cosmos
-  ETag makes the check atomic.
+  progress save. The form then names the other teacher and shows the current values, for example "Közben Éva
+  néni módosította". The Cosmos ETag makes the check atomic.
 - **Duplicates:** the duplicate check can't be atomic. If both teachers add the same word within the same
   moment, both saves can succeed, and the duplicate then shows up in `warnings`.
 
 ## Teacher's view
 
+- **Name chip:** the header shows the logged-in teacher's name.
 - **Two tabs:**
   - **Osztály** is today's class table.
   - **Szótár** is a new module, `web/js/screens/teacher-dictionary.js`. It replaces today's 📚 card, which says
     words only change with a new deployment.
 - **Szótár tab:** topics in their order, each with its entries and their count, plus a search across all
-  entries. Each topic has:
+  entries. Each entry shows who changed it last and when. Each topic has:
   - ✏️ to change its name, emoji or colour;
   - ▲▼ to move it;
   - 🗑️ to delete it, when it has no entries;
   - a hint while it has fewer than 4 entries.
 - **"＋ Új szó / kifejezés" form:**
-  - Fields: Szó / Kifejezés, Angol, Más elfogadott alakok (one per line), Magyar, Téma, Kép (emoji / szín /
-    nincs kép).
+  - Fields: Szó / Kifejezés, Angol, Más elfogadott alakok (one per line), Magyar, Megjegyzés (optional), Téma,
+    Kép (emoji / szín / nincs kép).
   - A live preview of the card, with a 🔊 button so the teacher hears how the browser's voice says it.
   - After saving, the form stays open for the next entry in the same topic, which makes entering the initial
     set quick.
@@ -177,6 +225,10 @@ Both teachers may edit at the same time. Today they would share `TEACHER_PASSWOR
 
 - **Progress keys:** progress stays in `state.data.words[key]`; the key is now the entry id. Nothing in the
   frontend builds the key from the English text (checked); only the comment in `state.js` changes.
+- **Loading:** `api.js` sends the password with the dictionary request too.
+- **Notes:** a note is shown in small text under the Hungarian meaning. That is on the new-word preview
+  (`preview.js`), the learning cards (`learn.js`) and the typing game's prompt (`typing.js`). In the typing game
+  it also tells apart phrases with a similar Hungarian meaning. The listening and pair games don't show it.
 - **No migration:** pupils get access only after the initial set is in, so no progress has to be moved.
 - **Empty states:** the pupils' screens still get an empty state ("A tanár még nem adott hozzá szavakat.") and
   skip topics without entries.
@@ -195,7 +247,8 @@ Both teachers may edit at the same time. Today they would share `TEACHER_PASSWOR
 
 - **Bicep:** `infra/main.bicep` gets the container `dictionary`, with partition key `/classId` and default
   indexing. The API's key can't create containers in Azure (`disableKeyBasedMetadataWriteAccess`), so
-  **deploy the template before the code**. `infra/README.md` gets that step.
+  **deploy the template before the code**. `infra/README.md` gets that step, and replaces `TEACHER_PASSWORD`
+  with `TEACHERS_JSON`.
 - **Local emulator:** the API creates the container on first use, as it does `progress`.
 - **Cost:**
   - Reading the whole dictionary is one single-partition query: a few dozen RU at most for a few hundred
@@ -207,17 +260,21 @@ Both teachers may edit at the same time. Today they would share `TEACHER_PASSWOR
 
 Branch `feature/teacher-dictionary`. Each step is one commit that builds and passes the tests.
 
-1. Add the `dictionary` container to `infra/main.bicep` and `infra/README.md`.
-2. Add the entry and topic documents, `IDictionaryStore` and `CosmosDictionaryStore`, and building the
+1. Replace `TEACHER_PASSWORD` with `TEACHERS_JSON`: `Roster` with tests, the login and the teacher's name chip,
+   `local.settings.example.json`, and the settings in `classroom/README.md` and `infra/README.md`.
+2. Add the `dictionary` container to `infra/main.bicep` and `infra/README.md`.
+3. Add the entry and topic documents, `IDictionaryStore` and `CosmosDictionaryStore`, and building the
    dictionary JSON from them, with tests.
-3. Serve `GET /api/dictionary` from Cosmos with the cache and `Cache-Control: no-cache`. Remove the CSV files,
-   the CSV reader and their tests.
-4. Add the teacher endpoints with the validation, duplicate and revision checks, tested with an in-memory store.
-5. Count only current entries in `ProgressSummary`.
-6. Frontend: entry ids as keys, `kind`, and the pupils' empty states.
-7. Teacher's view: the tabs, the dictionary list and topic management.
-8. Teacher's view: the entry form with its preview; editing, deleting and conflict messages.
-9. Update `classroom/README.md`, `docs/azure-plan.md` and `CLAUDE.md`.
+4. Serve `GET /api/dictionary` from Cosmos, behind a login, with the cache and `Cache-Control: private, no-cache`.
+   Remove the CSV files, the CSV reader and their tests.
+5. Add the teacher endpoints with the validation, duplicate and revision checks and `updatedBy`, tested with an
+   in-memory store.
+6. Count only current entries in `ProgressSummary`.
+7. Pupils' frontend: the dictionary request with the password, entry ids as keys, `kind`, notes on the cards and
+   in the typing game, and the empty states.
+8. Teacher's view: the tabs, the dictionary list and topic management.
+9. Teacher's view: the entry form with its preview; editing, deleting and conflict messages.
+10. Update `classroom/README.md`, `docs/azure-plan.md` and `CLAUDE.md`.
 
 ## Rejected alternatives
 
@@ -230,20 +287,11 @@ Branch `feature/teacher-dictionary`. Each step is one commit that builds and pas
 | One document holding the whole dictionary | Every change rewrites everything, and two teachers would conflict on every edit. |
 | The lower-case English text as the key (as in the demo) | Correcting a spelling would lose the pupils' progress. |
 | A separate container or partition for phrases | Same shape, always read together; `kind` tells them apart. |
+| One `TEACHER_PASSWORD` shared by both teachers | Nobody could tell who changed an entry. |
+| Pasting the initial list from Excel | Not needed; the teachers type the initial set in the form. |
 
 ## Later
 
 - Games that use `kind`. For example, pupils could put the words of a phrase in order instead of typing it
   letter by letter, and phrases could use smaller text on memory cards.
 - Pictures uploaded by the teachers (`img:` entries): the pictures phase of [`azure-plan.md`](azure-plan.md).
-
-## Open questions
-
-1. Do the two teachers teach the same class? The plan assumes one class (`classId` `"class"`). Two classes would
-   need pupil lists and teacher passwords per class; the partition key is ready for that.
-2. Should each teacher get their own password, for example through a `TEACHERS_JSON` setting? The dictionary
-   could then record who changed what (`updatedBy`).
-3. Should the initial set be importable? Teachers could paste rows from Excel (Angol, Magyar, Téma, Kép) into
-   the Szótár tab, saved in transactional batches of up to 100. That saves a lot of typing if the list is long.
-4. An optional `note` field for usage hints, for example "How do you do?" → *hivatalos bemutatkozáskor*:
-   proposed, not decided.
