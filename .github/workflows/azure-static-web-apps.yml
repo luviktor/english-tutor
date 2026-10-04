@@ -30,13 +30,34 @@ jobs:
         run: dotnet test classroom/EnglishTutor.slnx --configuration Release
       - name: Build the API
         run: dotnet publish classroom/api/EnglishTutor.Api.csproj --configuration Release --output _publish/api
+      # Azure/static-web-apps-deploy@v1 runs the client image :stable, which doesn't know
+      # dotnet-isolated:10.0 yet and stops with "Function language info isn't provided"; :latest does.
+      # This step runs the same client the way the action does (its entrypoint is
+      # `cd /bin/staticsites && ./StaticSitesClient $INPUT_ACTION`, configured through INPUT_* variables).
+      # Go back to the action once :stable lists dotnet-isolated:10.0:
+      #   docker run --rm --entrypoint sh mcr.microsoft.com/appsvc/staticappsclient:stable \
+      #     -c 'grep -a -o "dotnet-isolated:[0-9.]*" /bin/staticsites/StaticSitesCore.dll | sort -u'
       - name: Deploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: upload
-          app_location: classroom/web
-          api_location: _publish/api
-          output_location: ''
-          skip_app_build: true
-          skip_api_build: true
+        env:
+          INPUT_AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          INPUT_ACTION: upload
+          INPUT_APP_LOCATION: classroom/web
+          INPUT_API_LOCATION: _publish/api
+          INPUT_OUTPUT_LOCATION: ''
+          INPUT_SKIP_APP_BUILD: 'true'
+          INPUT_SKIP_API_BUILD: 'true'
+        run: |
+          # Pass the action's INPUT_* and the runner's GITHUB_* variables on by name (values stay out of the command line).
+          env_args=()
+          for name in $(env | grep -oE '^(INPUT|GITHUB)_[A-Za-z0-9_]*' | grep -vE '^GITHUB_(WORKSPACE|EVENT_PATH)$'); do
+            env_args+=(-e "$name")
+          done
+          docker run --rm "${env_args[@]}" \
+            -e GITHUB_WORKSPACE=/github/workspace \
+            -e GITHUB_EVENT_PATH=/github/workflow/event.json \
+            -v "$GITHUB_WORKSPACE":/github/workspace \
+            -v "$RUNNER_TEMP/_github_workflow":/github/workflow \
+            -w /github/workspace \
+            --entrypoint sh \
+            mcr.microsoft.com/appsvc/staticappsclient:latest \
+            -c 'cd /bin/staticsites && ./StaticSitesClient "$INPUT_ACTION"'
