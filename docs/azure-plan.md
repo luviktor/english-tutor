@@ -15,9 +15,11 @@ Differences from the text below, decided during the implementation:
 - The Cosmos account uses continuous 7-day backup (no storage charge) and keys that can't create or delete containers; pull-request previews are switched off in the Static Web App.
 - The workflow builds and tests the API itself and deploys the published output (`skip_api_build`).
 
-Next, before the pupils get access: the teachers' own dictionary in Cosmos DB, planned in
-[`teacher-dictionary.md`](teacher-dictionary.md) (2026-10-04). It replaces the bundled CSV words, which stay
-in the demo, and gives each of the two teachers their own password (`TEACHERS_JSON` instead of `TEACHER_PASSWORD`).
+Phase 4 is implemented and tested locally (2026-10-04, branch `feature/teacher-dictionary`): the teachers' own
+dictionary in Cosmos DB, designed in [`teacher-dictionary.md`](teacher-dictionary.md). It replaces the bundled CSV
+words, which stay in the demo, and gives each of the two teachers their own password (`TEACHERS_JSON` instead of
+`TEACHER_PASSWORD`). Before the pupils get access: deploy `infra/main.bicep` (it adds the `dictionary` container;
+deploy it before the code), set `TEACHERS_JSON`, and let the teachers enter the words.
 
 ## Requirements
 
@@ -110,7 +112,8 @@ All endpoints are under `/api` on the same origin as the frontend, so CORS isn't
 | `GET /api/progress` | pupil | Their progress, or `204` if they have none yet |
 | `PUT /api/progress` | pupil | Saves progress and recomputes the summary; returns `409` on a stale revision |
 | `GET /api/teacher/class` | teacher | Every pupil with their summary |
-| (planned) `/api/teacher/entries`, `/api/teacher/topics` | teacher | Edit the dictionary, see [`teacher-dictionary.md`](teacher-dictionary.md) |
+| `POST`/`PUT`/`DELETE /api/teacher/entries[/{id}]` | teacher | Add, change and delete a word or phrase; a change names its `revision`, a stale one gets `409` with the current version |
+| `POST`/`PUT`/`DELETE /api/teacher/topics[/{id}]`, `PUT /api/teacher/topic-order` | teacher | Add, change, delete and reorder topics (the order in one transactional batch), see [`teacher-dictionary.md`](teacher-dictionary.md#teacher-api) |
 | (later) picture upload and list | teacher / pupil | Teacher uploads to Blob; pupils get picture URLs per word |
 
 ## Frontend changes
@@ -194,7 +197,7 @@ Each phase gets its own `feature/<topic>` branch with small commits.
    - Login endpoint and screen, progress endpoints, the save throttle and retry, and the conflict check.
    - Import Nóra's existing `demo/data/progress.json` as one pupil.
 3. **Teacher view.** Teacher login and a class table with XP, words per level, streak and last active.
-4. **Teacher dictionary.** The teachers enter the words, phrases and topics in the teacher's view; they are stored in the Cosmos container `dictionary`. Plan: [`teacher-dictionary.md`](teacher-dictionary.md).
+4. **Teacher dictionary** (done). The teachers enter the words, phrases and topics in the teacher's view; they are stored in the Cosmos container `dictionary`. Design: [`teacher-dictionary.md`](teacher-dictionary.md).
 5. **Later: teacher pictures.** A storage account, teacher upload, and pictures shown next to or instead of the emoji. Pictures are read from Blob directly by the browser.
 
 ## Decisions and rejected alternatives

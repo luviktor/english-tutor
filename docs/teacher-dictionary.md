@@ -4,8 +4,16 @@ The teachers enter the words and phrases of the classroom version themselves, in
 
 ## Status (2026-10-04)
 
-Agreed, not implemented yet. The order of events is: the developer builds the app, the two teachers enter the
-initial set of words, and only then do the pupils get their passwords.
+Implemented and tested locally against the Cosmos emulator (all ten steps below), on `feature/teacher-dictionary`;
+not deployed yet. The order of events is: the developer builds the app, the two teachers enter the initial set
+of words, and only then do the pupils get their passwords.
+
+To go live: deploy `infra/main.bicep` first (it adds the `dictionary` container, which the API's key can't
+create), set `TEACHERS_JSON` and remove `TEACHER_PASSWORD` in the Static Web App's settings, then deploy the code.
+
+How the implementation differs from the first draft of this plan: the API answers with the entry or topic in
+the shape of `GET /api/dictionary` rather than the raw document; 409 bodies carry a `reason`; the Hungarian
+meaning may not contain line breaks either; "no picture" is an empty emoji in the form.
 
 ## Decisions
 

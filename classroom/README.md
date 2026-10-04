@@ -40,11 +40,16 @@ screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a 
 
 ## Teacher's view
 
-A teacher's password opens the class table instead of the game: every pupil with level and XP,
-words per level (new / learning / known / gold), accuracy, current and longest streak, answers in the last
-14 days and when they last played. Columns sort on click. Below it: problems in the pupil and teacher lists
-and the dictionary's status with its warnings. The data is the summary each pupil's last save stored, so
-it's always up to date and cheap to read. A teacher who wants to play adds themself to `PUPILS_JSON`.
+A teacher's password opens the teacher's view instead of the game, with the teacher's name in the top right
+and two tabs.
+
+* **Osztály** is the class table: every pupil with level and XP, words per level (new / learning / known /
+  gold), accuracy, current and longest streak, answers in the last 14 days and when they last played.
+  Columns sort on click. Below it: problems in the pupil and teacher lists. The data is the summary each
+  pupil's last save stored, so it's cheap to read; it counts only words that are still in the dictionary,
+  and a word deleted later drops out at the pupil's next save. A teacher who wants to play adds themself to
+  `PUPILS_JSON`.
+* **Szótár** is where the teachers enter and manage the class's words, see [The dictionary](#the-dictionary).
 
 ## Saving
 
@@ -71,6 +76,14 @@ All endpoints except login need the password in the `X-EnglishTutor-Password` he
 | `GET /api/progress` | pupil | `{ revision, updatedAt, data }`, or 204 when there is nothing yet |
 | `PUT /api/progress` | pupil | `{ revision, data }` → `{ revision, updatedAt }`; 409 with the newer copy when `revision` is stale |
 | `GET /api/teacher/class` | teacher | `{ pupils: [{ id, name, revision, updatedAt, summary }], problems }`; `summary` is null for pupils who haven't played |
+| `POST /api/teacher/entries`, `PUT`/`DELETE /api/teacher/entries/{id}` | teacher | Add, change and delete a word or phrase |
+| `POST /api/teacher/topics`, `PUT`/`DELETE /api/teacher/topics/{id}`, `PUT /api/teacher/topic-order` | teacher | Add, change, delete and reorder topics |
+
+The teacher endpoints take and return the same JSON shape as `GET /api/dictionary`. A change names the `revision`
+it is based on. Errors: 400 `{ error, field }` for a broken rule, 404 when the entry or topic is already gone, and
+409 `{ error, reason, current }` when another teacher got there first (`stale`), another entry already has the
+spelling (`duplicate`), or a topic still has entries (`topic-not-empty`). The messages are in Hungarian. Details:
+[`docs/teacher-dictionary.md`](../docs/teacher-dictionary.md#teacher-api).
 
 ## Run it locally
 
@@ -102,18 +115,46 @@ Tests: `dotnet test EnglishTutor.slnx`.
 ## The dictionary
 
 There are no built-in words: the class practises exactly what the teachers entered, and the demo's
-`demo/data/dictionary.csv` is not used here. The words, phrases and topics are documents in the Cosmos
-container `dictionary` (see [`docs/teacher-dictionary.md`](../docs/teacher-dictionary.md)); the form for
-entering them in the teacher's view is still being built, so the dictionary is empty for now. Progress is keyed
-by the entry's generated id, so correcting a spelling will keep it.
+`demo/data/dictionary.csv` is not used here. The dictionary is empty until the teachers fill it in, so
+the pupils should get their passwords only after that. The words, phrases and topics are documents in the Cosmos
+container `dictionary` (design and rules: [`docs/teacher-dictionary.md`](../docs/teacher-dictionary.md)).
+
+**Entering words** (teacher's view → Szótár):
+
+* Create the topics first (**＋ Új téma**: name, emoji, colour), then **＋ Új szó / kifejezés**. The form keeps
+  itself open after each save, so the first set can be typed in quickly. A topic's own **＋** starts it in that topic.
+* An entry has a kind (*szó* or *kifejezés*; the form suggests a phrase when the English text has a space), the
+  English text that is shown and spoken, other accepted spellings (one per line, up to 5, e.g. `thanks` next to
+  `thank you`), the Hungarian meaning, an optional note, a topic and a picture (an emoji or a colour; an
+  empty emoji means no picture). A live preview shows the card the pupils will see, and its 🔊 button speaks
+  the English text with the browser's voice.
+* Limits: 60 characters for the English and Hungarian text, 80 for the note, 30 for a topic name, 50 topics
+  and 1000 entries. No two entries may share a spelling; spellings are compared by letters only, ignoring case,
+  accents and punctuation, the way the typing game compares answers.
+* The note is a short hint on when a phrase is used (*hivatalos bemutatkozáskor*). Pupils see it in small text
+  under the Hungarian meaning on the new-word preview, the flashcards and the typing game.
+* Both teachers can work at the same time. If the other teacher changed the same entry or topic first, the
+  save is refused, their version is loaded into the form with their name, and nothing is overwritten.
+* Deleting an entry also loses the pupils' progress on it (their saved data keeps the record, unused). A topic
+  can be deleted only when it has no entries. Correcting a spelling keeps the progress, because progress is
+  keyed by the entry's generated id, not by its text.
+* Warnings (entries without a picture, possible duplicates, topics with fewer than 4 entries, which is too few
+  for the multiple-choice and pair games) appear above the list, as of the last load.
 
 An entry may have no picture (an empty `visual`). It is shown as a tile with its first letter, and the games
 practise it with text only (hear it and pick the English word, or see the Hungarian word and pick the English
-one; in the pair game it is matched with its Hungarian meaning). The teacher's view shows one warning with the
-number of entries without a picture. An `img:` picture that fails to load falls back to the same tile.
+one; in the pair game it is matched with its Hungarian meaning). An `img:` picture that fails to load falls back
+to the same tile. `kind` is stored but the games don't use it yet.
+
+**Caching:** the API reads the whole dictionary from Cosmos at most every 30 s per Functions instance, and
+a change made through an instance shows there at once. Browsers ask on every load and get 304 when nothing
+changed, so new words show at the pupils' next app load. When Cosmos can't be read, the last good copy is
+served.
 
 ## Deployment
 
 `.github/workflows/azure-static-web-apps.yml` runs the tests, publishes the API and deploys
 `web/` + the API on every push to `master` that touches `classroom/`. One-time Azure setup and the
-settings above: [`infra/README.md`](../infra/README.md).
+settings above: [`infra/README.md`](../infra/README.md). When a release needs a new Cosmos container (the
+`dictionary` container was the first), deploy `infra/main.bicep` before pushing the code: the API's key
+can't create containers in Azure.
