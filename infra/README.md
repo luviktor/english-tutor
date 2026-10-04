@@ -107,6 +107,12 @@ Then push to `master` (or run the workflow by hand from the **Actions** tab). Th
 
 If the token leaks, reset it with `az staticwebapp secrets reset-api-key` and update the secret.
 
+The workflow doesn't use `Azure/static-web-apps-deploy`, but runs the same deploy client (image
+`staticappsclient:latest`) itself. The action's `:stable` client doesn't know `dotnet-isolated:10.0` yet, even
+though the platform supports it, and fails with *Cannot deploy to the function app because Function language
+info isn't provided*. The comment in the workflow says how to check whether `:stable` has caught up, so the
+action can be used again.
+
 ## Don't create
 
 Key Vault, App Service plans, Container Registry, Front Door: none of them is free. If you enable
