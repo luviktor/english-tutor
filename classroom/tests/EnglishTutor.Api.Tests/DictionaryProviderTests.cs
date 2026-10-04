@@ -105,6 +105,20 @@ public class DictionaryProviderTests
     }
 
     [Fact]
+    public async Task ListsTheIdsOfTheEntriesItServes()
+    {
+        Assert.Equal(["e-1"], await _provider.KeysAsync(CancellationToken.None));
+
+        _store.Unavailable = true;
+        _provider.Invalidate();
+        _time.Advance(TimeSpan.FromMinutes(1));
+        Assert.Equal(["e-1"], await _provider.KeysAsync(CancellationToken.None)); // the last good copy
+
+        var empty = new DictionaryProvider(_store, Roster.Parse("[]", "[]"), _time, NullLogger<DictionaryProvider>.Instance);
+        Assert.Null(await empty.KeysAsync(CancellationToken.None)); // nothing to go on
+    }
+
+    [Fact]
     public async Task HasNothingToServeWhenCosmosFailsBeforeTheFirstSuccess()
     {
         _store.Unavailable = true;

@@ -58,6 +58,7 @@ builder.Services.AddSingleton<IDictionaryStore>(services => new CosmosDictionary
     services.GetRequiredService<CosmosClient>(),
     createIfMissing: isDevelopment && IsLocalEmulator(config["COSMOS_CONNECTION_STRING"])));
 builder.Services.AddSingleton<DictionaryProvider>();
+builder.Services.AddSingleton<ICurrentWords>(services => services.GetRequiredService<DictionaryProvider>());
 builder.Services.AddSingleton<DictionaryService>();
 
 builder.Build().Run();

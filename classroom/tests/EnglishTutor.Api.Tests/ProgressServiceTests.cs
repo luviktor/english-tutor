@@ -1,4 +1,5 @@
 using System.Text.Json;
+using EnglishTutor.Api.Dictionary;
 using EnglishTutor.Api.Progress;
 
 namespace EnglishTutor.Api.Tests;
@@ -6,11 +7,54 @@ namespace EnglishTutor.Api.Tests;
 public class ProgressServiceTests
 {
     private readonly InMemoryProgressStore _store = new();
+    private readonly FakeCurrentWords _words = new();
     private readonly ProgressService _service;
 
-    public ProgressServiceTests() => _service = new ProgressService(_store, TimeProvider.System);
+    public ProgressServiceTests() => _service = new ProgressService(_store, _words, TimeProvider.System);
 
     private static JsonElement State(int xp) => JsonDocument.Parse("{\"player\": {\"xp\": " + xp + "}}").RootElement;
+
+    private static JsonElement StateWithWords(params (string Key, int Level)[] words) =>
+        JsonDocument.Parse("{\"player\": {\"xp\": 1}, \"words\": {" + string.Join(",", words.Select(w => $"\"{w.Key}\": {{\"lvl\": {w.Level}}}")) + "}}").RootElement;
+
+    [Fact]
+    public async Task TheSummaryCountsOnlyWordsThatAreStillInTheDictionary()
+    {
+        _words.Keys = new HashSet<string> { "e-1", "e-2" };
+
+        var result = await _service.SaveAsync("p01", 0, StateWithWords(("e-1", 5), ("e-2", 0), ("e-deleted", 5)), CancellationToken.None);
+
+        Assert.Equal([1, 0, 0, 0, 0, 1], result.Current!.Summary.WordsByLevel); // one at level 0 and one gold; the deleted gold word is not counted
+    }
+
+    [Fact]
+    public async Task TheDeletedWordsStayInTheSavedProgressThough()
+    {
+        _words.Keys = new HashSet<string> { "e-1" };
+
+        var result = await _service.SaveAsync("p01", 0, StateWithWords(("e-1", 3), ("e-deleted", 4)), CancellationToken.None);
+
+        Assert.Equal(1, result.Current!.Summary.WordsByLevel.Sum());
+        Assert.True(result.Current.Data.GetProperty("words").TryGetProperty("e-deleted", out _));
+    }
+
+    [Fact]
+    public async Task CountsEveryWordWhenTheDictionaryCannotBeRead()
+    {
+        _words.Keys = null;
+
+        var result = await _service.SaveAsync("p01", 0, StateWithWords(("e-1", 3), ("e-deleted", 4)), CancellationToken.None);
+
+        Assert.Equal(2, result.Current!.Summary.WordsByLevel.Sum());
+    }
+
+    private sealed class FakeCurrentWords : ICurrentWords
+    {
+        /// <summary>Null means the dictionary can't be read.</summary>
+        public IReadOnlySet<string>? Keys { get; set; }
+
+        public Task<IReadOnlySet<string>?> KeysAsync(CancellationToken cancellationToken) => Task.FromResult(Keys);
+    }
 
     [Fact]
     public async Task FirstSaveCreatesRevisionOne()
