@@ -79,3 +79,16 @@ export const saveProgress = (data, revision, { keepalive = false } = {}) =>
 
 /** Teacher only: { pupils: [{ id, name, revision, updatedAt, summary }], problems: [...] }. */
 export const getClass = () => request('GET', 'teacher/class');
+
+// Teacher only: changing the dictionary. Each returns the entry or topic as GET /api/dictionary shows it.
+// A rejected change throws ApiError whose body is { error (Hungarian), field }, or on a 409
+// { error, reason: 'stale' | 'duplicate' | 'topic-not-empty', current }. An update or delete names the
+// `revision` it is based on.
+export const addTopic = topic => request('POST', 'teacher/topics', { body: topic });
+export const updateTopic = (id, topic) => request('PUT', `teacher/topics/${encodeURIComponent(id)}`, { body: topic });
+export const deleteTopic = (id, revision) => request('DELETE', `teacher/topics/${encodeURIComponent(id)}?revision=${revision}`);
+/** `ids` lists every topic once; resolves to all topics in their new order. */
+export const setTopicOrder = ids => request('PUT', 'teacher/topic-order', { body: { ids } });
+export const addEntry = entry => request('POST', 'teacher/entries', { body: entry });
+export const updateEntry = (id, entry) => request('PUT', `teacher/entries/${encodeURIComponent(id)}`, { body: entry });
+export const deleteEntry = (id, revision) => request('DELETE', `teacher/entries/${encodeURIComponent(id)}?revision=${revision}`);

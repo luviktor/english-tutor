@@ -10,12 +10,16 @@ import { el, shuffle } from './util.js';
 
 export const dict = { words: [], topics: [], byKey: new Map(), warnings: [] };
 
-export async function loadDictionary() {
-  const d = await getDictionary();
+/** Replaces the dictionary: after loading it, and after a teacher changed it. */
+export function setDictionary(d) {
   dict.words = d.words;
   dict.topics = d.topics;
   dict.warnings = d.warnings || [];
   dict.byKey = new Map(d.words.map(w => [w.key, w]));
+}
+
+export async function loadDictionary() {
+  setDictionary(await getDictionary());
 }
 
 /** '*' means every word. */

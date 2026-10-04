@@ -1,13 +1,15 @@
-// The teacher's view: the whole class in one sortable table, the dictionary's status and problems in the
-// pupil list. Not a router screen: main.js renders it after a teacher login.
+// The teacher's view, in two tabs: Osztály (the whole class in one sortable table, and the problems in the pupil
+// and teacher lists) and Szótár (the class's dictionary, see teacher-dictionary.js). Not a router screen:
+// main.js renders it after a teacher login.
 
-import { $, el, dayStr, todayStr, daysBetween } from '../util.js';
+import { $, el, dayStr, todayStr, daysBetween, relativeDay } from '../util.js';
 import * as api from '../api.js';
 import { dict } from '../dict.js';
 import { levelInfo } from '../levels.js';
 import { APP_TITLE } from '../strings.js';
 import { logout } from '../account.js';
 import { logoutIcon } from '../ui.js';
+import * as dictionaryTab from './teacher-dictionary.js';
 
 const DAYS = 14;
 
@@ -23,7 +25,6 @@ const groupCounts = p => GROUPS.map(g => g.levels.reduce((n, lvl) => n + (p.summ
 const knownWords = p => { const c = groupCounts(p); return c[2] + c[3]; };
 const accuracy = p => (p.summary?.answers ? Math.round((p.summary.correct / p.summary.answers) * 100) : null);
 const activeStreak = p => (p.summary?.lastDay && daysBetween(p.summary.lastDay, todayStr()) <= 1 ? p.summary.streak : 0);
-const daysAgo = iso => daysBetween(dayStr(new Date(iso)), todayStr());
 
 /** Answers per day for the last `n` days, oldest first. */
 function recentDays(p, n = DAYS) {
@@ -47,20 +48,49 @@ const COLUMNS = [
   { key: 'last', label: 'Utoljára', value: p => (p.updatedAt ? Date.parse(p.updatedAt) : 0) },
 ];
 
+/** The tabs: `mount(container)` fills the container and returns { reload } for the 🔄 chip. */
+const TABS = [
+  { id: 'class', label: 'Osztály', mount: mountClass },
+  { id: 'dictionary', label: 'Szótár', mount: dictionaryTab.mount },
+];
+
 /** `identity` is the { id, name, role } the login returned; its name goes on the chip. */
 export function render(app, identity) {
-  let report = null;
-  let sort = { key: 'name', dir: 1 };
-  const body = el('div', { class: 'teacher' });
+  const panels = new Map(); // tab id -> { node, tab, reload }; a tab is mounted when first opened and keeps its state
+  let active = TABS[0];
 
+  const reload = () => panels.get(active.id).reload();
   $('#hud').replaceChildren(el('div', { class: 'hud-inner' },
     el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'),
       el('span', { class: 'hud-title' }, `${APP_TITLE} – tanári nézet`)),
     el('div', { class: 'hud-chips' },
-      el('button', { class: 'chip', type: 'button', onclick: load }, '🔄 Frissítés'),
+      el('button', { class: 'chip', type: 'button', onclick: reload }, '🔄 Frissítés'),
       el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout }, el('span', { class: 'user-name' }, identity.name), logoutIcon()))));
-  app.append(body);
+
+  const buttons = TABS.map(tab => el('button', { class: 'tab', type: 'button', role: 'tab', onclick: () => open(tab) }, tab.label));
+  const content = el('div', { class: 'teacher-panels' });
+  app.append(el('div', { class: 'teacher' }, el('div', { class: 'tabs', role: 'tablist' }, buttons), content));
+  open(active);
+
+  function open(tab) {
+    active = tab;
+    if (!panels.has(tab.id)) {
+      const node = el('div', { class: 'teacher-panel', role: 'tabpanel' });
+      content.append(node);
+      panels.set(tab.id, { node, ...tab.mount(node, identity) });
+    }
+    TABS.forEach((t, i) => {
+      buttons[i].setAttribute('aria-selected', String(t === tab));
+      if (panels.has(t.id)) panels.get(t.id).node.hidden = t !== tab;
+    });
+  }
+}
+
+function mountClass(body) {
+  let report = null;
+  let sort = { key: 'name', dir: 1 };
   load();
+  return { reload: load };
 
   async function load() {
     body.replaceChildren(el('div', { class: 'loading' }, el('div', { class: 'spinner' }), 'Töltés…'));
@@ -92,13 +122,6 @@ export function render(app, identity) {
         el('h3', {}, '⚠️ Hibák a tanulók és tanárok listájában'),
         el('p', { class: 'small' }, 'A PUPILS_JSON és a TEACHERS_JSON beállítás a Static Web App környezeti változói között van.'),
         el('ul', {}, report.problems.map(t => el('li', {}, t)))),
-      el('section', { class: 'card' },
-        el('h3', {}, '📚 Szótár'),
-        el('p', {}, `${dict.words.length} szó, ${dict.topics.length} téma.`),
-        el('div', { class: 'row-wrap' }, dict.topics.map(t => el('span', { class: 'chip-topic', style: { '--c': t.color } },
-          `${t.emoji} ${t.name} (${dict.words.filter(w => w.topic === t.name).length})`))),
-        dict.warnings.length > 0 && el('div', { class: 'warn-box' }, el('b', {}, 'Figyelmeztetések:'),
-          el('ul', {}, dict.warnings.map(w => el('li', {}, w))))),
     ].filter(Boolean));
   }
 
@@ -134,7 +157,6 @@ export function render(app, identity) {
     const total = Math.max(dict.words.length, counts.reduce((a, b) => a + b, 0));
     const acc = accuracy(p);
     const streak = activeStreak(p);
-    const ago = daysAgo(p.updatedAt);
     return el('tr', {},
       el('td', {}, nameCell(p)),
       el('td', { class: 'nowrap' }, el('span', { class: 'lv' }, li.emoji), ` ${li.level}. szint`, el('small', {}, `${s.xp} XP`)),
@@ -145,8 +167,7 @@ export function render(app, identity) {
       el('td', { class: 'num' }, streak ? `🔥 ${streak}` : '0', el('small', {}, `leghosszabb: ${s.bestStreak}`)),
       el('td', {}, el('div', { class: 'spark', title: `${recentTotal(p, DAYS)} válasz az utolsó ${DAYS} napban` },
         recentDays(p).map(n => el('i', { style: { height: `${n ? Math.max(12, (n / max) * 100) : 4}%` }, class: n ? '' : 'zero' })))),
-      el('td', { class: 'nowrap', title: new Date(p.updatedAt).toLocaleString('hu-HU') },
-        ago <= 0 ? 'ma' : ago === 1 ? 'tegnap' : `${ago} napja`));
+      el('td', { class: 'nowrap', title: new Date(p.updatedAt).toLocaleString('hu-HU') }, relativeDay(p.updatedAt)));
   }
 }
 
