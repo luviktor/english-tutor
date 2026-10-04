@@ -2,9 +2,10 @@
 
 import { el } from '../util.js';
 import { state } from '../state.js';
-import { dict, wordsOf } from '../dict.js';
+import { dict, wordsOf, practiceTopics } from '../dict.js';
 import { go } from '../router.js';
 import { sfx } from '../sound.js';
+import { NO_WORDS } from '../strings.js';
 
 const MODES = {
   learn: { title: '📖 Szókártyák – válassz témát', mix: false },
@@ -32,13 +33,13 @@ function card({ emoji, name, color, words, onClick }) {
 export function render(app, { mode = 'listen' } = {}) {
   const m = MODES[mode] || MODES.listen;
   const open = topic => { sfx('click'); go(mode, { topic }); };
-  const cards = dict.topics.map(t => card({
+  const cards = practiceTopics().map(t => card({
     emoji: t.emoji, name: t.name, color: t.color, words: wordsOf(t.name), onClick: () => open(t.name),
   }));
-  if (m.mix) cards.unshift(card({ emoji: '🎲', name: 'Mindenből', color: '#8a5cf6', words: dict.words, onClick: () => open('*') }));
+  if (m.mix && cards.length > 0) cards.unshift(card({ emoji: '🎲', name: 'Mindenből', color: '#8a5cf6', words: dict.words, onClick: () => open('*') }));
   app.append(
     el('div', { class: 'screen-head' },
       el('button', { class: 'btn btn-ghost btn-small', type: 'button', onclick: () => go('home') }, '◀ Vissza'),
       el('h2', { class: 'screen-title' }, m.title)),
-    el('div', { class: 'topic-grid' }, cards));
+    cards.length > 0 ? el('div', { class: 'topic-grid' }, cards) : el('p', { class: 'empty' }, NO_WORDS));
 }

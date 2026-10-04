@@ -6,6 +6,9 @@ import { state, peekToday, streakNow } from './state.js';
 /** The title the pupils see. */
 export const APP_TITLE = 'Angol kaland';
 
+/** Shown where the pupils would pick a topic while the teachers have not entered any word yet. */
+export const NO_WORDS = 'A tanár még nem adott hozzá szavakat.';
+
 const name = () => state.data.player.name;
 
 export const praise = () => pick([

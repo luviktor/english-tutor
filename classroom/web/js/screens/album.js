@@ -2,7 +2,7 @@
 
 import { el } from '../util.js';
 import { state } from '../state.js';
-import { dict, wordsOf, visualOrInitial, pictureIcon } from '../dict.js';
+import { dict, wordsOf, practiceTopics, visualOrInitial, pictureIcon } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -14,7 +14,7 @@ export function render(app) {
   const lv = w => state.data.words[w.key]?.lvl ?? -1;
   const gold = dict.words.filter(w => lv(w) >= 5).length;
 
-  const sections = dict.topics.map(t => {
+  const sections = practiceTopics().map(t => {
     const ws = wordsOf(t.name);
     const goldHere = ws.filter(w => lv(w) >= 5).length;
     return el('section', { class: 'album-topic', style: { '--c': t.color } },

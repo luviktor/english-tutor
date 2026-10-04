@@ -5,7 +5,7 @@ import { dict } from '../dict.js';
 import { BADGES } from '../badges.js';
 import { go } from '../router.js';
 import { mascot } from '../ui.js';
-import { homeLine } from '../strings.js';
+import { homeLine, NO_WORDS } from '../strings.js';
 import { sfx } from '../sound.js';
 import { speak } from '../speech.js';
 
@@ -73,13 +73,15 @@ export function render(app) {
             el('div', {}, el('b', {}, streak), ' nap'), el('div', { class: 'small' }, 'sorozat'))))),
 
     el('h2', { class: 'section-title' }, 'Játékok'),
-    el('section', { class: 'tiles' }, TILES.map(t => el('button', {
-      class: 'tile', type: 'button',
-      style: { '--c1': t.c1, '--c2': t.c2 },
-      onclick: () => { sfx('click'); go('topics', { mode: t.mode }); },
-    }, el('span', { class: 'tile-icon' }, t.icon),
-    el('span', { class: 'tile-text' }, el('span', { class: 'tile-title' }, t.title), el('span', { class: 'tile-sub' }, t.sub)),
-    el('span', { class: 'tile-arrow', 'aria-hidden': 'true' }, '›')))),
+    dict.words.length === 0
+      ? el('p', { class: 'empty card' }, NO_WORDS)
+      : el('section', { class: 'tiles' }, TILES.map(t => el('button', {
+        class: 'tile', type: 'button',
+        style: { '--c1': t.c1, '--c2': t.c2 },
+        onclick: () => { sfx('click'); go('topics', { mode: t.mode }); },
+      }, el('span', { class: 'tile-icon' }, t.icon),
+      el('span', { class: 'tile-text' }, el('span', { class: 'tile-title' }, t.title), el('span', { class: 'tile-sub' }, t.sub)),
+      el('span', { class: 'tile-arrow', 'aria-hidden': 'true' }, '›')))),
 
     el('h2', { class: 'section-title' }, 'Eredmények'),
     el('nav', { class: 'pills' },

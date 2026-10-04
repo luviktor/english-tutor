@@ -6,7 +6,7 @@
 
 import { el, sleep, lettersOnly } from '../util.js';
 import { wordRec } from '../state.js';
-import { visual } from '../dict.js';
+import { visual, noteLine } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -79,6 +79,7 @@ export function render(app, { topic }) {
           el('div', { class: 'prompt-label' }, 'Írd be angolul!'),
           visual(word, 'prompt-visual'),
           el('div', { class: 'prompt-hu' }, word.hu),
+          noteLine(word, 'prompt-note'),
           el('div', { class: 'prompt-tools' }, speakerBtn(word.english, { big: true }), speakerBtn(word.english, { slow: true, big: true }))),
         answerShow,
         el('div', { class: 'slots' }, slotEls),

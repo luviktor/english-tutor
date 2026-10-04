@@ -2,7 +2,7 @@
 
 import { el } from '../util.js';
 import { state, wordRec, introduce, addXP, touchStreak, commit } from '../state.js';
-import { wordsOf, topicInfo, visualOrInitial } from '../dict.js';
+import { wordsOf, topicInfo, visualOrInitial, noteLine } from '../dict.js';
 import { go } from '../router.js';
 import { speak } from '../speech.js';
 import { sfx } from '../sound.js';
@@ -38,6 +38,7 @@ export function render(app, { topic }) {
         visualOrInitial(w, 'learn-visual'),
         el('div', { class: 'learn-en' }, w.english),
         el('div', { class: 'learn-hu' }, w.hu),
+        noteLine(w, 'learn-note'),
         el('div', { class: 'learn-tools' }, speakerBtn(w.english, { big: true }), speakerBtn(w.english, { slow: true, big: true }))),
       el('div', { class: 'learn-nav' },
         el('button', { class: 'btn btn-blue', type: 'button', onclick: prev, disabled: i === 0 }, '◀'),

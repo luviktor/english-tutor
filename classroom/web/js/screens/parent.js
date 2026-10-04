@@ -4,7 +4,7 @@
 
 import { el, dayStr, todayStr } from '../util.js';
 import { state, commit, resetAll, replaceData } from '../state.js';
-import { dict, loadDictionary } from '../dict.js';
+import { dict, loadDictionary, practiceTopics } from '../dict.js';
 import { go } from '../router.js';
 import { speak, englishVoices, hasEnglishVoice, bestVoice } from '../speech.js';
 import { confirmDialog } from '../ui.js';
@@ -78,8 +78,8 @@ export function render(app) {
     const dictBox = el('div', {});
     const drawDict = () => {
       dictBox.replaceChildren(
-        el('p', {}, `${dict.words.length} szó, ${dict.topics.length} téma. A szótárat a tanár frissíti.`),
-        el('div', { class: 'row-wrap' }, dict.topics.map(t => el('span', { class: 'chip-topic', style: { '--c': t.color } }, `${t.emoji} ${t.name} (${dict.words.filter(w => w.topic === t.name).length})`))),
+        el('p', {}, `${dict.words.length} szó, ${practiceTopics().length} téma. A szótárat a tanár frissíti.`),
+        el('div', { class: 'row-wrap' }, practiceTopics().map(t => el('span', { class: 'chip-topic', style: { '--c': t.color } }, `${t.emoji} ${t.name} (${dict.words.filter(w => w.topic === t.name).length})`))),
         dict.warnings.length > 0 && el('div', { class: 'warn-box' }, el('b', {}, 'Figyelmeztetések:'), el('ul', {}, dict.warnings.map(w => el('li', {}, w)))),
         el('button', { class: 'btn btn-blue btn-small', type: 'button', onclick: async () => { await loadDictionary(); drawDict(); sfx('pop'); } }, '🔄 Szótár újratöltése'));
     };

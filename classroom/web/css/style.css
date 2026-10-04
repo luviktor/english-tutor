@@ -379,6 +379,9 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .pv-visual { font-size: 3.2rem; display: block; }
 .pv-en { font-weight: 800; font-size: 1.25rem; color: var(--primary-d); }
 .pv-hu { color: var(--ink-soft); }
+/* The teacher's hint on when a word or phrase is used, small under its Hungarian meaning. */
+.word-note { font-size: 1rem; font-style: italic; color: var(--ink-soft); margin: -8px 0 14px; }
+.pv-card .word-note { font-size: .85rem; margin: 2px 0 0; }
 
 /* --------------------------------------------------------------- memory */
 .memory-grid { display: grid; grid-template-columns: repeat(var(--cols, 4), 1fr); gap: 10px; width: min(100%, 700px); }
