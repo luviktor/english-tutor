@@ -50,7 +50,7 @@ async function start(identity) {
       await loadDictionary();
       app.replaceChildren();
       app.className = 'screen screen-teacher';
-      teacher.render(app);
+      teacher.render(app, identity);
       return;
     }
     await Promise.all([loadState(identity), loadDictionary(), initSpeech()]);

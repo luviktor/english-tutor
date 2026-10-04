@@ -11,7 +11,7 @@
 | Container | `progress` | One document per pupil, partition key `/id`, the `data` field isn't indexed. |
 
 Commands below are for Git Bash (or any bash). In PowerShell, quoting JSON for `az` is unreliable, so set
-`PUPILS_JSON` in the portal instead (step 4).
+`PUPILS_JSON` and `TEACHERS_JSON` in the portal instead (step 3).
 
 ## 1. Subscription, resource group, budget (once)
 
@@ -57,14 +57,21 @@ az staticwebapp appsettings set --name swa-englishtutor --resource-group rg-engl
 The passwords are best typed in the portal, so they don't end up in the shell history:
 **Static Web App → Settings → Environment variables → Production → + Add**:
 
-* `TEACHER_PASSWORD`: a long password (at least 8 letters or digits).
+* `TEACHERS_JSON`: one entry per teacher, each with their own long password (at least 8 letters or digits),
+  the whole list on one line, for example
+  `[{"id":"t01","name":"Éva néni","password":"hosszu-tanari-jelszo-1"},{"id":"t02","name":"Béla bácsi","password":"masik-tanari-jelszo-2"}]`.
 * `PUPILS_JSON`: the whole list on one line, for example
   `[{"id":"p01","name":"Anna","password":"piros-roka-7"},{"id":"p02","name":"Bence","password":"kek-bagoly-3"}]`.
-  Keep the list with the real passwords outside the repository.
+
+Keep both lists with the real passwords outside the repository. Ids and passwords must differ across the
+two lists.
 
 Select **Apply**. The API restarts with the new values; changing a pupil's password logs that pupil out on
-every device, while their progress (stored by `id`) stays. Problems in the list are written to the API's log
+every device, while their progress (stored by `id`) stays. Problems in the lists are written to the API's log
 and shown in the teacher's view.
+
+`TEACHER_PASSWORD` is no longer read. If the Static Web App still has it, delete it and add `TEACHERS_JSON`,
+or nobody can log in as a teacher.
 
 ## 4. Connect GitHub
 

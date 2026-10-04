@@ -6,7 +6,7 @@ namespace EnglishTutor.Api.Progress;
 public sealed record ClassPupil(string Id, string Name, int? Revision, DateTimeOffset? UpdatedAt, ProgressSummary? Summary);
 
 /// <summary>The teacher's class table: every pupil of the roster with their latest summary.</summary>
-/// <param name="Problems">Mistakes in PUPILS_JSON / TEACHER_PASSWORD, without passwords.</param>
+/// <param name="Problems">Mistakes in PUPILS_JSON / TEACHERS_JSON, without passwords.</param>
 public sealed record ClassReport(IReadOnlyList<ClassPupil> Pupils, IReadOnlyList<string> Problems)
 {
     /// <summary>Pupils in roster order; documents of pupils no longer in the roster are left out.</summary>
