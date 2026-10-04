@@ -5,14 +5,14 @@ The English-learning game of [`demo/`](../demo/) for a whole class, hosted on Az
 
 | Folder | What |
 |---|---|
-| `web/` | Vanilla JS frontend (copied from `demo/web`, restyled) and `staticwebapp.config.json` |
+| `web/` | Vanilla JS frontend (copied from `demo/web`) and `staticwebapp.config.json`. Pupils and the login screen look like the demo (`css/style.css`), the teacher's view is calmer (`css/teacher.css`) |
 | `api/` | `EnglishTutor.Api`: Azure Functions, C# .NET 10 isolated worker, served by Static Web Apps under `/api` |
 | `tests/` | xUnit tests of the API |
 
 ## Login
 
 There are no accounts: the pupils, the teachers and their passwords are listed in the API's settings. The login
-screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a copy of the demo's file).
+screen is the demo's splash: the school drawn as a wireframe (`web/js/school-wireframe.js`, a copy of the demo's file), then a box where the fox asks for the password (`web/js/splash.js`).
 
 | Setting | Content |
 |---|---|

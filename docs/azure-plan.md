@@ -218,7 +218,7 @@ Each phase gets its own `feature/<topic>` branch with small commits.
 ## Risks
 
 - **No uptime guarantee:** Static Web Apps Free has no SLA. The Standard plan (about $9/month) adds one.
-- **Cold start:** the first request after an idle period takes a few seconds, so the login screen shows a spinner.
+- **Cold start:** the first request after an idle period takes a few seconds, so the login screen says "Kapcsolódás…" and warns that the first login can take a few seconds.
 - **Guessable passwords:** short passwords can be guessed by a script. That's accepted given what's at stake (game progress only).
 - **Children's data:** everything runs in East US 2 (see below), so the data is in the US. Nothing identifies a child there: pupils have an alias and a code, never their own name or nickname (the API even drops `player.name` before saving), and the list of who is who stays on paper with the two mentors. It is still personal data in the legal sense, because the mentors can link it to a child. The parents therefore get the notice and consent form (`docs/szuloi-tajekoztato.docx`) and agree per child, and the data is deleted at the end of the school year. The user is a parent of one of the children, not a teacher, and runs the app privately with two mentors.
 

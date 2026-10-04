@@ -94,7 +94,7 @@ export function render(app) {
           kpi('💬', d.stats.answers, 'válasz'),
           kpi('🎯', acc + '%', 'pontosság'),
           kpi('🌱', `${known}/${words.length}`, 'szót tud'),
-          kpi('🥇', `${gold}/${words.length}`, 'arany kártya'),
+          kpi('🥇', `${gold}/${words.length}`, 'arany matrica'),
           kpi('🎮', d.stats.rounds, 'befejezett kör')),
         el('h4', {}, 'Az utolsó 14 nap (válaszok száma)'),
         el('div', { class: 'day-chart' }, bars)),
@@ -121,7 +121,7 @@ export function render(app) {
       backupSection(),
       el('section', { class: 'card danger' },
         el('h3', {}, '🗑️ Eredmények törlése'),
-        el('p', {}, 'Minden eredmény, kártya és csillag törlődik.'),
+        el('p', {}, 'Minden eredmény, matrica és csillag törlődik.'),
         el('button', {
           class: 'btn btn-red btn-small', type: 'button',
           onclick: async () => {

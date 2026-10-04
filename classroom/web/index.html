@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Angol kaland</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Ctext x='32' y='43' font-family='Segoe UI,Arial,sans-serif' font-size='30' font-weight='800' fill='%23fff' text-anchor='middle'%3EAa%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🦊%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css" id="theme-pupil">
+  <link rel="stylesheet" href="css/teacher.css" id="theme-teacher" media="not all">
 </head>
 <body>
+  <div id="bg" aria-hidden="true"></div>
   <header id="hud"></header>
-  <main id="app"><div class="loading"><div class="spinner"></div>Töltés…</div></main>
+  <main id="app"><div class="loading">🦊 Töltés…</div></main>
   <div id="toasts" aria-live="polite"></div>
   <script type="module" src="js/main.js"></script>
 </body>

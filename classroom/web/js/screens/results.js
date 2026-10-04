@@ -11,7 +11,7 @@ import { confetti } from '../fx.js';
 import { mascot, speakerBtn } from '../ui.js';
 import { finishLine } from '../strings.js';
 
-const TITLES = { 3: 'Kiváló!', 2: 'Szép munka!', 1: 'Jó kezdés!' };
+const TITLES = { 3: 'Fantasztikus!', 2: 'Nagyon ügyes!', 1: 'Szép munka!' };
 
 export function render(app, s) {
   if (!s || !s.game) { go('home', {}, { replace: true }); return; }
@@ -44,7 +44,7 @@ export function render(app, s) {
       s.goal && el('div', { class: 'banner pink' }, `🎁 Napi cél teljesítve! +${s.goal.xp} XP és +${s.goal.stars} ⭐`),
       levelUp && el('div', { class: 'banner purple' }, `${LEVELS[Math.min(li.level, LEVELS.length) - 1].emoji} Szintet léptél! Most ${li.level}. szint: ${li.title}`),
       stickers.length > 0 && el('div', { class: 'result-block' },
-        el('h3', {}, '🥇 Új arany kártya!'),
+        el('h3', {}, '🥇 Új arany matrica!'),
         el('div', { class: 'row-wrap' }, stickers.map(w => el('span', { class: 'chip-sticker' }, w.english)))),
       badges.length > 0 && el('div', { class: 'result-block' },
         el('h3', {}, '🏆 Új trófea!'),
