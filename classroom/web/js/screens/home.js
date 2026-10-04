@@ -10,10 +10,10 @@ import { sfx } from '../sound.js';
 import { speak } from '../speech.js';
 
 const TILES = [
-  { icon: '📖', title: 'Szókártyák', sub: 'Nézd meg, hallgasd meg, mondd ki', c1: '#ffb347', c2: '#ff6f61', mode: 'learn' },
-  { icon: '🎧', title: 'Hallás után', sub: 'Melyik szót hallod?', c1: '#5ee7df', c2: '#2d9cff', mode: 'listen' },
-  { icon: '🃏', title: 'Párkereső', sub: 'Kép és szó párban', c1: '#d68bff', c2: '#ff6ec7', mode: 'memory' },
-  { icon: '⌨️', title: 'Gépelés', sub: 'Írd be a szót angolul', c1: '#8af08a', c2: '#1fc16b', mode: 'typing' },
+  { icon: '📖', title: 'Tanulj!', sub: 'Nézd és hallgasd a szavakat', c1: '#ffb347', c2: '#ff6f61', mode: 'learn' },
+  { icon: '🎧', title: 'Hallgasd és válassz!', sub: 'Mit hallasz? Koppints a jóra!', c1: '#5ee7df', c2: '#2d9cff', mode: 'listen' },
+  { icon: '🃏', title: 'Párkereső', sub: 'Találd meg a párokat!', c1: '#d68bff', c2: '#ff6ec7', mode: 'memory' },
+  { icon: '⌨️', title: 'Írd be!', sub: 'Gépeld be angolul!', c1: '#8af08a', c2: '#1fc16b', mode: 'typing' },
 ];
 
 function ring(done, goal) {
@@ -64,7 +64,7 @@ export function render(app) {
         el('div', { class: 'goal-row' },
           ring(today.done, goal),
           el('div', { class: 'goal-text' },
-            el('div', { class: 'goal-title' }, today.goalDone ? 'Mai cél: kész ✔' : 'Mai cél'),
+            el('div', { class: 'goal-title' }, today.goalDone ? 'Mai cél: kész! ✔' : 'Mai cél'),
             el('div', {}, `${Math.min(today.done, goal)} / ${goal} szó`)),
           el('div', { class: 'streak-box' }, el('span', { class: 'streak-fire' }, '🔥'),
             el('div', {}, el('b', {}, streak), ' nap'), el('div', { class: 'small' }, 'sorozat'))))),
@@ -78,8 +78,8 @@ export function render(app) {
       }, el('span', { class: 'tile-icon' }, t.icon), el('span', { class: 'tile-title' }, t.title), el('span', { class: 'tile-sub' }, t.sub)))),
 
     el('nav', { class: 'pills' },
-      el('button', { class: 'pill pill-gold', type: 'button', onclick: () => go('album') }, '🗂️ Gyűjtemény ', el('b', {}, `${gold}/${dict.words.length}`)),
+      el('button', { class: 'pill pill-gold', type: 'button', onclick: () => go('album') }, '🗂️ Matricák ', el('b', {}, `${gold}/${dict.words.length}`)),
       el('button', { class: 'pill pill-pink', type: 'button', onclick: () => go('trophies') }, '🏆 Trófeák ', el('b', {}, `${earned}/${BADGES.length}`)),
-      el('button', { class: 'pill pill-blue', type: 'button', onclick: () => go('shop') }, `${p.mascot} Avatar`),
+      el('button', { class: 'pill pill-blue', type: 'button', onclick: () => go('shop') }, '👒 Öltöző'),
       el('button', { class: 'pill pill-grey', type: 'button', onclick: () => go('parent') }, '⚙️ Beállítások')));
 }

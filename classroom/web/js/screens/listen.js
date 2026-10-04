@@ -20,7 +20,7 @@ export function render(app, { topic }) {
   const words = pickWords(topic, ROUND);
   const stage = el('div', { class: 'stage' });
   const bar = gameBar({
-    title: '🎧 Hallás után',
+    title: '🎧 Hallgasd és válassz!',
     onExit: async () => { if (await confirmDialog('Kilépsz a játékból?', { icon: '🚪', yes: 'Kilépek', no: 'Maradok' })) go('home'); },
   });
   app.append(bar.node, stage);

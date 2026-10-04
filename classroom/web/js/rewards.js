@@ -10,7 +10,7 @@ export function celebrate(result, word, anchor) {
     confetti({ count: 70, power: 0.8 });
   }
   if (result.mastered) {
-    toast('🥇', `Arany kártya: ${word.english}!`);
+    toast('🥇', `Arany matrica: ${word.english}!`);
     confetti({ count: 90 });
     sfx('coin');
   }
