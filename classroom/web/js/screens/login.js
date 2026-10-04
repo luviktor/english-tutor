@@ -53,7 +53,6 @@ export function render(app, { onLogin, message = '' }) {
   app.append(
     el('div', { class: 'login-wire', html: schoolWireframeSvg() }),
     el('form', { class: 'card login-card', onsubmit: tryLogin },
-      el('div', { class: 'login-school-name', 'aria-hidden': 'true' }, 'Erkel Ferenc Általános Iskola'),
       el('h1', { class: 'title' }, APP_TITLE),
       el('p', { class: 'lead' }, 'Írd be a jelszavadat, amit a tanárodtól kaptál.'),
       el('div', { class: 'login-row' }, input, toggle),
