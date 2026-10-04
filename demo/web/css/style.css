@@ -422,22 +422,20 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .danger { border-color: #ffd0d0; }
 
 /* ----------------------------------------------------------------- splash */
-/* Shown until a valid access code was entered (js/splash.js, art in js/splash-art.js and
-   js/school-wireframe.js). Timeline: rainbow 0-1.6s, the building is drawn from .45s to ~2.4s and its
-   windows light up until ~3.5s, title letters drop from 1s to ~3s, the code box opens at 3.7s (class
-   .is-ready). A tap skips ahead (.is-skipped). */
+/* Shown until a valid access code was entered (js/splash.js, art in js/school-wireframe.js).
+   Timeline: the building is drawn from .45s to ~2.4s and its windows light up until ~3.5s, title
+   letters drop from 1s to ~3s, the code box opens at 3.7s (class .is-ready). A tap skips ahead
+   (.is-skipped). */
 .splash {
   position: fixed; inset: 0; z-index: 70; display: flex; overflow: auto; padding: 18px 16px;
   background: linear-gradient(160deg, #8fe3ff 0%, #c9b8ff 55%, #ffc9e6 100%);
   transition: opacity .6s ease, transform .7s cubic-bezier(.5, 0, .8, .5);
 }
 .splash.is-leaving { opacity: 0; transform: translateY(-5%) scale(1.08); pointer-events: none; }
-.sp-stage { position: relative; margin: auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
-.sp-intro { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 2vh, 18px); }
+.sp-stage { position: relative; margin: 2vh auto auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.sp-intro { display: flex; flex-direction: column; align-items: center; margin-bottom: clamp(6px, 1.5vh, 14px); }
 
 .sp-sky { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
-.sp-rainbow { position: absolute; left: 50%; bottom: -1%; width: min(1100px, 140vw); transform: translateX(-50%); opacity: .8; }
-.sp-band { stroke-dasharray: 1; stroke-dashoffset: 1; animation: spDraw 1.3s calc(var(--i) * .13s) ease-out both; }
 .sp-cloud {
   position: absolute; left: 0; top: calc(5% + var(--i) * 19%); width: 150px; height: 44px; border-radius: 99px;
   background: rgba(255, 255, 255, .85); transform: translateX(calc(var(--i) * 24vw + 4vw));
@@ -468,15 +466,11 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   animation: spJig 2.6s calc(3.1s + var(--i) * 110ms) ease-in-out infinite;
 }
 
-/* the school: black lines as wide as the window, drawn over the rainbow and the clouds (js/school-wireframe.js);
+/* the school: black lines as wide as the window, drawn over the sky and the clouds (js/school-wireframe.js);
    the title and the code box lie on top of it and hide parts of it. It is drawn line by line, then its
    windows light up. The drawing's own groups time the animation. */
 .sp-wire { position: fixed; inset: 0; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; }
 .sp-wire .wf { flex: none; width: min(100vw, 200vh); height: auto; }
-.sp-caption {
-  margin: 0; text-align: center; font-size: .78rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--ink); animation: spFade .8s 2.3s ease-out both;
-}
 .wf { display: block; overflow: visible; fill: none; stroke: #111; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
 .wf path { stroke-dasharray: 1; animation: wfDraw 1.2s ease-out both; }
 .wf-frame path { animation-delay: .45s; }
@@ -523,21 +517,22 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .sp-card .btn-big { width: 100%; }
 .sp-card.shake { animation: shake .45s; }
 
-.is-skipped .intro, .is-skipped .wf path, .is-skipped .sp-caption { animation-delay: 0s !important; animation-duration: .01ms !important; }
+.is-skipped .intro, .is-skipped .wf path { animation-delay: 0s !important; animation-duration: .01ms !important; }
 .is-skipped .sp-login { transition-duration: .01ms !important; }
 @media (prefers-reduced-motion: reduce) {
   .splash *, .splash *::before, .splash *::after { animation-delay: 0s !important; }
   .wf path { animation: none !important; }
 }
 
-/* wide screens: the title stays top left, above the roof, and the code box opens on the right, over the right wing */
+/* wide screens: the title is top left, above the roof, and the code box opens top right, over the right wing.
+   Narrower or taller windows keep the single column (title, then the code box). */
 @media (min-width: 700px) and (min-aspect-ratio: 4/3) {
   .splash { --sp-card-w: min(440px, 46vw); }
   .sp-stage { flex-direction: row; justify-content: space-between; align-items: stretch; margin: 0 auto; }
-  .sp-intro { align-self: flex-start; gap: 6px; }
+  .sp-intro { align-self: flex-start; }
   .sp-title { font-size: clamp(2.1rem, min(4.6vw, 9.5vh), 4.4rem); }
   .sp-login {
-    align-self: center; grid-template-rows: 1fr; flex: none; width: 0; margin-left: 0;
+    align-self: flex-start; grid-template-rows: 1fr; flex: none; width: 0; margin-left: 0;
     transition: width .8s cubic-bezier(.2, .9, .3, 1), margin-left .8s cubic-bezier(.2, .9, .3, 1), opacity .5s;
   }
   .sp-login-in { width: var(--sp-card-w); }
@@ -554,12 +549,10 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .wf-fine path { stroke-width: 1.1; }
 }
 
-@keyframes spDraw { to { stroke-dashoffset: 0; } }
 @keyframes spCloud { from { transform: translateX(-220px); } to { transform: translateX(calc(100vw + 220px)); } }
 @keyframes spTwinkle { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
 @keyframes spDrop { 0% { opacity: 0; transform: translateY(-1.3em) scale(.5) rotate(-24deg); } 100% { opacity: 1; transform: none; } }
 @keyframes spJig { 0%, 100% { transform: none; } 50% { transform: translateY(-.07em) rotate(-2deg); } }
-@keyframes spFade { from { opacity: 0; } }
 @keyframes wfDraw { from { stroke-dashoffset: 1; } }
 @keyframes wfLight { from { fill: rgba(255, 221, 87, 0); } }
 @keyframes wfFill { from { fill-opacity: 0; } }

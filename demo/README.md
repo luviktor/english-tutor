@@ -86,7 +86,7 @@ To start from zero: use the reset button in the parents' corner, or delete `data
 | Level names and XP curve | `web/js/levels.js` |
 | Mascot phrases | `web/js/strings.js` |
 | Access codes, cookie lifetime | `web/js/auth.js` |
-| Splash screen: picture, texts, timing | `web/js/school-wireframe.js`, `web/js/splash-art.js`, `web/js/splash.js`, section "splash" in `web/css/style.css` |
+| Splash screen: picture, texts, timing | `web/js/school-wireframe.js`, `web/js/splash.js`, section "splash" in `web/css/style.css` |
 | Colours, look | `web/css/style.css` |
 
 ## Troubleshooting
