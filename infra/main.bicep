@@ -4,6 +4,7 @@
 //   Cosmos DB       cosmos-englishtutor-<suffix>    free tier, account throughput limited to 1000 RU/s
 //     database      englishtutor                    1000 RU/s shared by its containers
 //     container     progress                        one document per pupil, partition key /id
+//     container     dictionary                      the teachers' entries and topics, partition key /classId
 //
 // Deploy into the resource group rg-englishtutor; see infra/README.md. Every resource goes to East US 2,
 // whatever the group's own region is (that only says where the group's metadata is kept).
@@ -116,6 +117,26 @@ resource progressContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
             path: '/"_etag"/?'
           }
         ]
+      }
+    }
+  }
+}
+
+// The whole class dictionary (entries and topics, told apart by `type`) lives in one logical partition,
+// "class", so reading it is a single-partition query and several documents can change in one batch.
+// Default indexing: the documents are small and are queried by their fields.
+resource dictionaryContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2025-04-15' = {
+  parent: database
+  name: 'dictionary'
+  properties: {
+    resource: {
+      id: 'dictionary'
+      partitionKey: {
+        paths: [
+          '/classId'
+        ]
+        kind: 'Hash'
+        version: 2
       }
     }
   }

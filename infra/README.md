@@ -9,6 +9,7 @@
 | Cosmos DB account, free tier | `cosmos-englishtutor-<suffix>` | Account throughput limited to 1000 RU/s, continuous 7-day backup (no storage charge), keys can't create or delete containers. |
 | Database | `englishtutor` | 1000 RU/s shared by its containers. |
 | Container | `progress` | One document per pupil, partition key `/id`, the `data` field isn't indexed. |
+| Container | `dictionary` | The teachers' entries and topics, partition key `/classId` (always `"class"`: the whole dictionary is one partition), default indexing. It shares the database's 1000 RU/s. |
 
 Commands below are for Git Bash (or any bash). In PowerShell, quoting JSON for `az` is unreliable, so set
 `PUPILS_JSON` and `TEACHERS_JSON` in the portal instead (step 3).
@@ -36,6 +37,11 @@ az deployment group create --resource-group rg-englishtutor --template-file infr
 
 The deployment is idempotent; run it again after changing `main.bicep`. Preview a change with
 `az deployment group what-if` and the same arguments.
+
+**Deploy the template before the code.** The API's key can't create containers in Azure, so when a release
+uses a new container (the `dictionary` container is the first), run this deployment first and push to
+`master` afterwards. Otherwise the new code starts without its container and fails. (Locally the API creates
+missing containers in the emulator by itself.)
 
 The Cosmos free tier can be used by **one account per subscription**, and only when the account is created.
 If the deployment fails with a free-tier error, another account in the subscription already uses it.
