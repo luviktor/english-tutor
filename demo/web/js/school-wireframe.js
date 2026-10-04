@@ -82,12 +82,12 @@ function frame() {
       + line([548, 353], [600, 353]) + line([548, 370], [600, 370]) + along(RIGHT, 353, 600, 749) + along(RIGHT, 370, 600, 749)
       + line([780, 361], [824, 362.5])),
     // eaves and cornices
-    path(along(LEFT, 197, 97, 381) + line([381, 209.1], [441.5, 209.1]) + along(LEFT, 205, 92, 384) + line([384, 216], [441.5, 216]) + line([384, 221], [441.5, 221])),
+    path(along(LEFT, 197, 92, 381) + line([381, 209.1], [441.5, 209.1]) + along(LEFT, 205, 92, 384) + line([384, 216], [441.5, 216]) + line([384, 221], [441.5, 221])),
     path(line([548, 206.5], [600, 206.5]) + line([548, 214], [600, 214]) + line([548, 219], [600, 219])
       + along(RIGHT, 191.4, 600, 749) + along(RIGHT, 199.4, 600, 749)
       + line([780, 251], [827, 270]) + line([780, 258], [824, 275.5])),
     // walls: ends of the left wing, the corners of the blocks, the tower, the pavilion and the end wall
-    path(line([92, LEFT.y(92, 205)], [92, LEFT.y(92, 416.5)]) + line([126, LEFT.y(126, 205)], [126, LEFT.y(126, 416.5)])
+    path(line([92, LEFT.y(92, 197)], [92, LEFT.y(92, 416.5)]) + line([126, LEFT.y(126, 197)], [126, LEFT.y(126, 416.5)])
       + line([384, 216], [384, 416]) + line([392, 221], [392, 416])
       + line([587.5, 219], [587.5, 416]) + line([600, 219], [600, 416])
       + line([441.5, 148], [441.5, 416.5]) + line([547.7, 148], [547.7, 416.5])
@@ -97,7 +97,7 @@ function frame() {
 function roofs() {
   const ridgeL = LEFT.y(124, 158.2), ridgeR = LEFT.y(424, 158.2);
   const course = (t) => {   // a tile course on the left wing roof, t = 0 at the ridge, 1 at the eave
-    const a = 124 - 27 * t, b = 424 - 41 * t, ref = 158.2 + t * (197 - 158.2);
+    const a = 124 - 32 * t, b = 424 - 41 * t, ref = 158.2 + t * (197 - 158.2);
     return along(LEFT, ref, a, b);
   };
   const courseR = (t) => along(RIGHT, 164 + t * 27.4, 548 + 52 * t, 749);
@@ -108,7 +108,8 @@ function roofs() {
     path(line(...[...BELL_L].reverse(), ...BELL_R.slice(1))),
     path(ring([435.5, 143.5], [546, 143.5], [548, 148], [437, 148])),
     // left wing: ridge, hips, chimney
-    path(along(LEFT, 158.2, 124, 424) + line([124, ridgeL], [97, LEFT.y(97, 197)]) + line([424, ridgeR], [383, 209.1])),
+    // the ridge runs into the tower, the hips come down to the corners of the eave, so the roof closes against the walls
+    path(along(LEFT, 158.2, 124, 441.5) + line([124, ridgeL], [92, LEFT.y(92, 197)]) + line([424, ridgeR], [383, 209.1])),
     path(line([162, 232], [162, 214], [179, 214], [179, 227])),
     // right wing: ridge, hip, the end against the pavilion, vent pipes
     path(along(RIGHT, 164, 548, 749) + line([548, 164], [600, 206.5]) + line([749, RIGHT.y(749, 164)], [749, RIGHT.y(749, 191.4)])),
