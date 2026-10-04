@@ -1,13 +1,13 @@
-// Splash screen: a short animation (the school, the title), then a box that asks for the access
-// code. runSplash() resolves once a valid code was entered. The look and the animation timeline
-// are CSS (section "splash" in style.css); this file builds the DOM, reveals the code box when
-// the animation has played (or on a tap / key press) and checks the code.
+// Splash screen: a short animation (the school drawn as a wireframe, the title), then a box that
+// asks for the access code. runSplash() resolves once a valid code was entered. The look and the
+// animation timeline are CSS (section "splash" in style.css); this file builds the DOM, reveals the
+// code box when the animation has played (or on a tap / key press) and checks the code.
 
 import { el } from './util.js';
 import { sfx } from './sound.js';
 import { confetti } from './fx.js';
 import { tryLogin } from './auth.js';
-import { rainbowSvg, schoolSvg } from './splash-art.js';
+import { schoolWireframeSvg } from './school-wireframe.js';
 
 const READY_MS = 3700;   // the code box appears after the title has dropped in
 const LEAVE_MS = 700;    // fade-out of the whole splash
@@ -56,14 +56,12 @@ export function runSplash() {
     // ---- the whole splash
     const root = el('div', { class: 'splash', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Belépés' },
       el('div', { class: 'sp-sky', 'aria-hidden': 'true' },
-        el('div', { html: rainbowSvg() }),
         [0, 1, 2, 3].map(i => el('i', { class: 'sp-cloud', style: { '--i': i } })),
         SPARKLES.map(([emoji, x, y], i) => el('span', { class: 'sp-spark', style: { left: x + '%', top: y + '%', '--i': i } }, emoji))),
+      // the school, as wide as the window and drawn over the sky; the title and the code box lie on top of it
+      el('div', { class: 'sp-wire', html: schoolWireframeSvg() }),
       el('div', { class: 'sp-stage' },
-        el('div', { class: 'sp-intro' },
-          titleNode(),
-          el('div', { class: 'sp-float' },
-            el('figure', { class: 'sp-picture intro', html: schoolSvg() }))),
+        el('div', { class: 'sp-intro' }, titleNode()),
         el('div', { class: 'sp-login' }, el('div', { class: 'sp-login-in' }, card))));
 
     // Everything behind the splash is out of reach (tab key, screen readers) until it is gone.

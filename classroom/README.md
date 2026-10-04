@@ -12,7 +12,8 @@ The English-learning game of [`demo/`](../demo/) for a whole class, hosted on Az
 
 ## Login
 
-There are no accounts: the teacher lists the pupils and their passwords in the API's settings.
+There are no accounts: the teacher lists the pupils and their passwords in the API's settings. The login
+screen shows the school as a wireframe drawing (`web/js/school-wireframe.js`, a copy of the demo's file).
 
 | Setting | Content |
 |---|---|
