@@ -114,13 +114,4 @@ public class DictionaryProviderTests
         _store.Unavailable = false;
         Assert.Equal(["hello"], Words((await _provider.GetAsync(CancellationToken.None))!));
     }
-
-    private sealed class ManualTime(DateTimeOffset now) : TimeProvider
-    {
-        private DateTimeOffset _now = now;
-
-        public override DateTimeOffset GetUtcNow() => _now;
-
-        public void Advance(TimeSpan by) => _now += by;
-    }
 }

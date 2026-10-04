@@ -82,6 +82,21 @@ public sealed class CosmosDictionaryStore(CosmosClient client, bool createIfMiss
         }
     }
 
+    public async Task<bool> TryReplaceAllAsync(IReadOnlyList<(DictionaryDocument Document, string ETag)> replacements, CancellationToken cancellationToken)
+    {
+        var container = await ContainerAsync(cancellationToken);
+        var batch = container.CreateTransactionalBatch(Partition);
+        foreach (var (document, etag) in replacements)
+        {
+            batch.ReplaceItem(document.Id, document, new TransactionalBatchItemRequestOptions { IfMatchEtag = etag, EnableContentResponseOnWrite = false });
+        }
+        using var response = await batch.ExecuteAsync(cancellationToken);
+        if (response.IsSuccessStatusCode) return true;
+        // The status of a failed batch is the one of the operation that failed; the others report 424.
+        if (response.StatusCode is HttpStatusCode.PreconditionFailed or HttpStatusCode.NotFound) return false;
+        throw new InvalidOperationException($"The batch failed: {(int)response.StatusCode} {response.ErrorMessage}");
+    }
+
     public async Task<bool> TryDeleteAsync(string id, string etag, CancellationToken cancellationToken)
     {
         var container = await ContainerAsync(cancellationToken);

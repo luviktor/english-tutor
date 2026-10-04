@@ -20,6 +20,12 @@ public interface IDictionaryStore
     /// <summary>False when the document changed since it was read with <paramref name="etag"/>, or is gone.</summary>
     Task<bool> TryReplaceAsync(DictionaryDocument document, string etag, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Replaces all the documents in one transaction, or none: false when any of them changed since it was read
+    /// with its ETag, or is gone. At most 100 documents.
+    /// </summary>
+    Task<bool> TryReplaceAllAsync(IReadOnlyList<(DictionaryDocument Document, string ETag)> replacements, CancellationToken cancellationToken);
+
     /// <summary>False when the document changed since it was read with <paramref name="etag"/>, or is already gone.</summary>
     Task<bool> TryDeleteAsync(string id, string etag, CancellationToken cancellationToken);
 }

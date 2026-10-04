@@ -184,11 +184,17 @@ teacher's id in `updatedBy`.
 | `DELETE /api/teacher/topics/{id}?revision=n` | Deletes a topic; refused (409) while it has entries |
 | `PUT /api/teacher/topic-order` | Sets the order of all topics (a list of ids) in one transactional batch |
 
-- Responses return the stored document, so the teacher's page updates its own copy without reloading the
-  dictionary.
-- Errors:
-  - A failed validation returns 400 with `{ error, field }`, the message in Hungarian.
-  - A duplicate returns 409, naming the existing entry.
+- Bodies and responses use the same JSON shape as `GET /api/dictionary` (with the teacher's name in
+  `updatedBy`), so the teacher's page updates its own copy without reloading the dictionary. Deleting returns
+  204; setting the order returns all topics in their new order.
+- A change sends the editable fields and the `revision` it is based on. The form fields are `kind`, `topicId`,
+  `english`, `alsoAccepted` (a list), `hu`, `note` and `visual` for an entry, and `name`, `emoji` and `color`
+  for a topic. `PUT /api/teacher/topic-order` takes `{ "ids": [...] }` listing every topic once.
+- Errors, all `{ error, ... }` with the message in Hungarian:
+  - **400** `{ error, field }` for a broken rule, `field` being the JSON property it is about.
+  - **404** when the entry or topic was deleted meanwhile.
+  - **409** `{ error, reason, current }`: `reason` is `stale` (`current` is what is stored now),
+    `duplicate` (`current` is the entry in the way) or `topic-not-empty`.
 
 ### Two teachers
 
@@ -196,7 +202,8 @@ Both teachers may edit at the same time.
 
 - **Stale changes:** a change based on an old `revision` gets 409 with the current document, like a stale
   progress save. The form then names the other teacher and shows the current values, for example "Közben Éva
-  néni módosította". The Cosmos ETag makes the check atomic.
+  néni módosította". The Cosmos ETag makes the check atomic. Setting the topic order bumps the revision of the
+  topics that moved, so a rename that started before it gets this answer too.
 - **Duplicates:** the duplicate check can't be atomic. If both teachers add the same word within the same
   moment, both saves can succeed, and the duplicate then shows up in `warnings`.
 

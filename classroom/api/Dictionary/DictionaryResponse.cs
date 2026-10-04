@@ -16,9 +16,18 @@ public sealed record DictionaryWord(
     string Visual,
     int Revision,
     string UpdatedBy,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt)
+{
+    public static DictionaryWord From(EntryDocument entry, string topicName, Func<string, string> teacherName) => new(
+        entry.Id, entry.TopicId, topicName, entry.Kind, entry.English, [entry.English, .. entry.AlsoAccepted], entry.Hu, entry.Note,
+        entry.Visual, entry.Revision, teacherName(entry.UpdatedBy), entry.UpdatedAt);
+}
 
-public sealed record DictionaryTopic(string Id, string Name, string Emoji, string Color, int Revision, string UpdatedBy, DateTimeOffset UpdatedAt);
+public sealed record DictionaryTopic(string Id, string Name, string Emoji, string Color, int Revision, string UpdatedBy, DateTimeOffset UpdatedAt)
+{
+    public static DictionaryTopic From(TopicDocument topic, Func<string, string> teacherName) => new(
+        topic.Id, topic.Name, topic.Emoji, topic.Color, topic.Revision, teacherName(topic.UpdatedBy), topic.UpdatedAt);
+}
 
 /// <summary>
 /// The dictionary in the JSON shape the frontend expects (GET /api/dictionary), built from the teachers' documents.
@@ -81,10 +90,8 @@ public sealed record DictionaryResponse(IReadOnlyList<DictionaryTopic> Topics, I
 
         var topicNames = topics.ToDictionary(t => t.Id, t => t.Name);
         return new DictionaryResponse(
-            topics.Select(t => new DictionaryTopic(t.Id, t.Name, t.Emoji, t.Color, t.Revision, teacherName(t.UpdatedBy), t.UpdatedAt)).ToList(),
-            entries.Select(e => new DictionaryWord(
-                e.Id, e.TopicId, topicNames[e.TopicId], e.Kind, e.English, [e.English, .. e.AlsoAccepted], e.Hu, e.Note, e.Visual,
-                e.Revision, teacherName(e.UpdatedBy), e.UpdatedAt)).ToList(),
+            topics.Select(t => DictionaryTopic.From(t, teacherName)).ToList(),
+            entries.Select(e => DictionaryWord.From(e, topicNames[e.TopicId], teacherName)).ToList(),
             warnings);
     }
 
@@ -94,7 +101,7 @@ public sealed record DictionaryResponse(IReadOnlyList<DictionaryTopic> Topics, I
     /// </summary>
     private static IEnumerable<string> DuplicateWarnings(IReadOnlyList<EntryDocument> entries) =>
         entries
-            .SelectMany(e => e.AlsoAccepted.Prepend(e.English).Select(Spelling.LettersOnly).Where(s => s.Length > 0).Distinct().Select(s => (Spelling: s, Entry: e)))
+            .SelectMany(e => Spelling.Keys(e.English, e.AlsoAccepted).Select(s => (Spelling: s, Entry: e)))
             .GroupBy(x => x.Spelling, x => x.Entry)
             .Where(g => g.Count() > 1)
             .Select(g => g.ToList())

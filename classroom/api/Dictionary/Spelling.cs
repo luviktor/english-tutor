@@ -21,4 +21,8 @@ public static class Spelling
         }
         return result.ToString();
     }
+
+    /// <summary>The distinct non-empty <see cref="LettersOnly"/> forms of an entry's spellings: what it is found by.</summary>
+    public static HashSet<string> Keys(string english, IEnumerable<string> alsoAccepted) =>
+        alsoAccepted.Prepend(english).Select(LettersOnly).Where(key => key.Length > 0).ToHashSet();
 }

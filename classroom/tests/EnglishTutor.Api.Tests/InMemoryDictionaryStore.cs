@@ -39,11 +39,27 @@ internal sealed class InMemoryDictionaryStore : IDictionaryStore
         return Task.FromResult(true);
     }
 
+    /// <summary>Runs just before a document is replaced: lets a test change it "at the same moment".</summary>
+    public Action? BeforeReplace { get; set; }
+
     public Task<bool> TryReplaceAsync(DictionaryDocument document, string etag, CancellationToken cancellationToken)
     {
         Check();
+        BeforeReplace?.Invoke();
         if (!_documents.TryGetValue(document.Id, out var current) || current.ETag != etag) return Task.FromResult(false);
         Put(document);
+        return Task.FromResult(true);
+    }
+
+    /// <summary>Runs just before a batch is applied: lets a test change a document "at the same moment".</summary>
+    public Action? BeforeReplaceAll { get; set; }
+
+    public Task<bool> TryReplaceAllAsync(IReadOnlyList<(DictionaryDocument Document, string ETag)> replacements, CancellationToken cancellationToken)
+    {
+        Check();
+        BeforeReplaceAll?.Invoke();
+        if (replacements.Any(r => !_documents.TryGetValue(r.Document.Id, out var current) || current.ETag != r.ETag)) return Task.FromResult(false);
+        foreach (var (document, _) in replacements) Put(document);
         return Task.FromResult(true);
     }
 
