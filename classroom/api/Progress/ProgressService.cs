@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace EnglishTutor.Api.Progress;
 
@@ -17,6 +18,7 @@ public sealed class ProgressService(IProgressStore store, TimeProvider time)
 
     public async Task<SaveResult> SaveAsync(string pupilId, int baseRevision, JsonElement data, CancellationToken cancellationToken)
     {
+        data = WithoutPupilName(data);
         var summary = ProgressSummary.From(data);
         var current = await store.GetAsync(pupilId, cancellationToken);
         if (current is null)
@@ -39,6 +41,25 @@ public sealed class ProgressService(IProgressStore store, TimeProvider time)
 
     public Task<IReadOnlyList<ProgressSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken) =>
         store.ListSummariesAsync(cancellationToken);
+
+    /// <summary>
+    /// The frontend copies the pupil's name from the login into <c>player.name</c>, and takes it from the
+    /// login again after every load, so it never needs to be stored. Dropping it here guarantees that the
+    /// database holds no name, whatever the pupils are called in <c>PUPILS_JSON</c>.
+    /// </summary>
+    private static JsonElement WithoutPupilName(JsonElement data)
+    {
+        if (data.ValueKind != JsonValueKind.Object
+            || !data.TryGetProperty("player", out var player)
+            || player.ValueKind != JsonValueKind.Object
+            || !player.TryGetProperty("name", out _))
+        {
+            return data;
+        }
+        var node = JsonNode.Parse(data.GetRawText())!;
+        node["player"]!.AsObject().Remove("name");
+        return JsonSerializer.SerializeToElement(node);
+    }
 
     private async Task<SaveResult> ConflictAsync(string pupilId, CancellationToken cancellationToken) =>
         new(false, (await store.GetAsync(pupilId, cancellationToken))?.Document);

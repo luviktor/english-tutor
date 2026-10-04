@@ -59,6 +59,22 @@ public class ProgressServiceTests
     }
 
     [Fact]
+    public async Task ThePupilsNameIsNotStored()
+    {
+        var withName = JsonDocument.Parse("{\"player\": {\"name\": \"Anna\", \"xp\": 10}, \"stars\": 1}").RootElement;
+
+        var result = await _service.SaveAsync("p01", 0, withName, CancellationToken.None);
+
+        Assert.True(result.Saved);
+        var stored = (await _service.GetAsync("p01", CancellationToken.None))!;
+        Assert.DoesNotContain("Anna", stored.Data.GetRawText());
+        Assert.False(stored.Data.GetProperty("player").TryGetProperty("name", out _));
+        Assert.Equal(10, stored.Data.GetProperty("player").GetProperty("xp").GetInt32());
+        Assert.Equal(1, stored.Data.GetProperty("stars").GetInt32());
+        Assert.Equal(10, stored.Summary.Xp);
+    }
+
+    [Fact]
     public async Task PupilsHaveSeparateDocuments()
     {
         await _service.SaveAsync("p01", 0, State(10), CancellationToken.None);
