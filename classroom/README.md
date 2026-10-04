@@ -7,7 +7,6 @@ The English-learning game of [`demo/`](../demo/) for a whole class, hosted on Az
 |---|---|
 | `web/` | Vanilla JS frontend (copied from `demo/web`, restyled) and `staticwebapp.config.json` |
 | `api/` | `EnglishTutor.Api`: Azure Functions, C# .NET 10 isolated worker, served by Static Web Apps under `/api` |
-| `api/data/` | `dictionary.csv` and `topics.csv`, bundled with the API (same format as in the demo) |
 | `tests/` | xUnit tests of the API |
 
 ## Login
@@ -63,11 +62,11 @@ then ⚙️ Beállítások → 💾 Mentés fájlba → 📥 Betöltés fájlbó
 
 ## API
 
-All endpoints except the dictionary and login need the password in the `X-EnglishTutor-Password` header.
+All endpoints except login need the password in the `X-EnglishTutor-Password` header.
 
 | Endpoint | Who | Purpose |
 |---|---|---|
-| `GET /api/dictionary` | anyone | The words and topics parsed from `api/data/*.csv`, a C# port of the reader in `demo/server.py`. Cached by browsers for 5 minutes. |
+| `GET /api/dictionary` | pupil or teacher | `{ topics, words, warnings }`: the class's own dictionary from the Cosmos container `dictionary`. Built at most every 30 s per Functions instance; browsers revalidate with the ETag (`Cache-Control: private, no-cache`, 304 when unchanged). If Cosmos can't be read it serves the last good copy, or 503 when it has none. |
 | `POST /api/login` | anyone | `{"password": "..."}` → `{ id, name, role }` (`pupil` or `teacher`), or 401 |
 | `GET /api/progress` | pupil | `{ revision, updatedAt, data }`, or 204 when there is nothing yet |
 | `PUT /api/progress` | pupil | `{ revision, data }` → `{ revision, updatedAt }`; 409 with the newer copy when `revision` is stale |
@@ -102,15 +101,16 @@ Tests: `dotnet test EnglishTutor.slnx`.
 
 ## The dictionary
 
-Edit `api/data/dictionary.csv` (format: [`demo/README.md`](../demo/README.md#the-dictionary--datadictionarycsv)) and
-push to `master`; the deployment rebuilds the API. Progress is keyed by the lower-case English word,
-so changing a word's English spelling loses its progress.
+There are no built-in words: the class practises exactly what the teachers entered, and the demo's
+`demo/data/dictionary.csv` is not used here. The words, phrases and topics are documents in the Cosmos
+container `dictionary` (see [`docs/teacher-dictionary.md`](../docs/teacher-dictionary.md)); the form for
+entering them in the teacher's view is still being built, so the dictionary is empty for now. Progress is keyed
+by the entry's generated id, so correcting a spelling will keep it.
 
-The `emoji` column may be left empty: such a word has no picture. It is shown as a tile with its first
-letter, and the games practise it with text only (hear it and pick the English word, or see the Hungarian
-word and pick the English one; in the pair game it is matched with its Hungarian meaning). The teacher's
-view shows one warning with the number of words without a picture. An `img:` picture that fails to load
-falls back to the same tile.
+An entry may have no picture (an empty `visual`). It is shown as a tile with its first letter, and the games
+practise it with text only (hear it and pick the English word, or see the Hungarian word and pick the English
+one; in the pair game it is matched with its Hungarian meaning). The teacher's view shows one warning with the
+number of entries without a picture. An `img:` picture that fails to load falls back to the same tile.
 
 ## Deployment
 

@@ -1,4 +1,4 @@
-// The dictionary as the server parsed it from data/dictionary.csv.
+// The class's dictionary, as the teachers entered it (GET /api/dictionary).
 
 import { getDictionary } from './api.js';
 import { el, shuffle } from './util.js';

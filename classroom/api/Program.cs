@@ -14,8 +14,6 @@ var config = builder.Configuration;
 var isDevelopment = builder.Environment.IsDevelopment();
 
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton(new DictionaryProvider(Path.Combine(AppContext.BaseDirectory, "data")));
-
 builder.Services.AddSingleton(services =>
 {
     var roster = Roster.Parse(config["PUPILS_JSON"], config["TEACHERS_JSON"]);
@@ -56,6 +54,10 @@ builder.Services.AddSingleton<IProgressStore>(services => new CosmosProgressStor
     services.GetRequiredService<CosmosClient>(),
     createIfMissing: isDevelopment && IsLocalEmulator(config["COSMOS_CONNECTION_STRING"])));
 builder.Services.AddSingleton<ProgressService>();
+builder.Services.AddSingleton<IDictionaryStore>(services => new CosmosDictionaryStore(
+    services.GetRequiredService<CosmosClient>(),
+    createIfMissing: isDevelopment && IsLocalEmulator(config["COSMOS_CONNECTION_STRING"])));
+builder.Services.AddSingleton<DictionaryProvider>();
 
 builder.Build().Run();
 

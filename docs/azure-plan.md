@@ -96,7 +96,7 @@ Simple passwords kept in the backend; no accounts, no email addresses.
   - `summary`: XP, words per level, streak and last active. It is computed on every save and feeds the teacher view.
   - `updatedAt` and a revision number: a stale save from a second device gets `409 Conflict`.
 - The `data` field is excluded from indexing, which makes writes cheaper.
-- (Planned) Container `dictionary`, partition key `/classId`: the teachers' entries and topics, see
+- Container `dictionary`, partition key `/classId`: the teachers' entries and topics, see
   [`teacher-dictionary.md`](teacher-dictionary.md).
 
 ## API
@@ -105,7 +105,7 @@ All endpoints are under `/api` on the same origin as the frontend, so CORS isn't
 
 | Endpoint | Who | Purpose |
 |---|---|---|
-| `GET /api/dictionary` | anyone | Parses the bundled `dictionary.csv` and `topics.csv`, a C# port of the reader in `demo/server.py`. The browser may cache it. |
+| `GET /api/dictionary` | pupil or teacher | The class's dictionary from the Cosmos container `dictionary`. Cached 30 s per instance; browsers revalidate with the ETag. |
 | `POST /api/login` | anyone | Checks a password; returns `{ id, name, role }` |
 | `GET /api/progress` | pupil | Their progress, or `204` if they have none yet |
 | `PUT /api/progress` | pupil | Saves progress and recomputes the summary; returns `409` on a stale revision |
@@ -136,7 +136,6 @@ classroom/
     EnglishTutor.Api.csproj
     Program.cs, host.json
     local.settings.json    gitignored, local secrets
-    data/                  dictionary.csv, topics.csv
   swa-cli.config.json      folders for `swa start`
 infra/
   main.bicep               SWA Free, Cosmos free tier (database + container)

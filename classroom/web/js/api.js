@@ -59,9 +59,14 @@ export async function login(typed) {
 /** Checks the remembered password; also wakes the API up after an idle period. */
 export const whoAmI = () => request('POST', 'login', { body: { password }, auth: false });
 
+/**
+ * { topics, words, warnings }. Not through request(): its cache: 'no-store' would stop the browser from
+ * asking the server whether its copy is still current (the server answers 304 when it is).
+ */
 export async function getDictionary() {
-  const r = await fetch('api/dictionary');
-  if (!r.ok) throw new Error('dictionary ' + r.status);
+  const r = await fetch('api/dictionary', { headers: { [PASSWORD_HEADER]: password } });
+  if (r.status === 401) onUnauthorized();
+  if (!r.ok) throw new ApiError(r.status, null);
   return r.json();
 }
 
