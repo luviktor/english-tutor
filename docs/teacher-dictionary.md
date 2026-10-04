@@ -217,16 +217,21 @@ Both teachers may edit at the same time.
 - **Szótár tab:** topics in their order, each with its entries and their count, plus a search across all
   entries. Each entry shows who changed it last and when. Each topic has:
   - ✏️ to change its name, emoji or colour;
-  - ▲▼ to move it;
+  - ▲▼ to move it (not while a search is active);
   - 🗑️ to delete it, when it has no entries;
+  - ＋ to add an entry to it (the same form as below, with the topic preselected);
   - a hint while it has fewer than 4 entries.
 - **"＋ Új szó / kifejezés" form:**
-  - Fields: Szó / Kifejezés, Angol, Más elfogadott alakok (one per line), Magyar, Megjegyzés (optional), Téma,
-    Kép (emoji / szín / nincs kép).
+  - Fields: Fajta (Szó / Kifejezés), Angol, Más elfogadott alakok (one per line), Magyar, Megjegyzés (optional),
+    Téma, Kép (an emoji or a colour; an empty emoji means no picture).
+  - The kind switches to Kifejezés when the English text has a space, until the teacher chooses it themself.
   - A live preview of the card, with a 🔊 button so the teacher hears how the browser's voice says it.
   - After saving, the form stays open for the next entry in the same topic, which makes entering the initial
     set quick.
-- **Each entry:** ✏️ edits it; 🗑️ deletes it after a confirmation saying that pupils lose their progress on it.
+- **Each entry:** ✏️ edits it, in place; 🗑️ deletes it after a confirmation saying that pupils lose their progress
+  on it.
+- **Rejected saves:** the message (a broken rule, a duplicate, or "Közben … módosította" with the other
+  teacher's version loaded into the form) shows in the form, which keeps what was typed.
 - **Safety:** text the teachers typed only ever goes into the page as text (`el()` children, never its `html`
   prop).
 

@@ -47,7 +47,8 @@ async function start(identity) {
   app.replaceChildren(loading('Töltés…'));
   try {
     if (identity.role === 'teacher') {
-      await loadDictionary();
+      // The speech voices are for the 🔊 button of the preview in the dictionary form.
+      await Promise.all([loadDictionary(), initSpeech()]);
       app.replaceChildren();
       app.className = 'screen screen-teacher';
       teacher.render(app, identity);
