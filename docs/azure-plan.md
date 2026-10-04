@@ -15,12 +15,17 @@ Differences from the text below, decided during the implementation:
 - The Cosmos account uses continuous 7-day backup (no storage charge) and keys that can't create or delete containers; pull-request previews are switched off in the Static Web App.
 - The workflow builds and tests the API itself and deploys the published output (`skip_api_build`).
 
+Next, before the pupils get access: the teachers' own dictionary in Cosmos DB, planned in
+[`teacher-dictionary.md`](teacher-dictionary.md) (2026-10-04). It replaces the bundled CSV words, which stay
+in the demo.
+
 ## Requirements
 
 - About 25 pupils, each playing at most 30 minutes a day.
 - **€0 per month**: only always-free Azure tiers.
 - Storage for the pupils' results.
 - A backend that keeps secrets and talks to the frontend.
+- The teachers enter the class's words and phrases themselves; the pupils get access once the initial set is in.
 - Later, not in the first phase: the teacher uploads pictures to fill the dictionary.
 
 Naming: the application is called **EnglishTutor** in every project, resource and identifier.
@@ -91,6 +96,8 @@ Simple passwords kept in the backend; no accounts, no email addresses.
   - `summary`: XP, words per level, streak and last active. It is computed on every save and feeds the teacher view.
   - `updatedAt` and a revision number: a stale save from a second device gets `409 Conflict`.
 - The `data` field is excluded from indexing, which makes writes cheaper.
+- (Planned) Container `dictionary`, partition key `/classId`: the teachers' entries and topics, see
+  [`teacher-dictionary.md`](teacher-dictionary.md).
 
 ## API
 
@@ -103,6 +110,7 @@ All endpoints are under `/api` on the same origin as the frontend, so CORS isn't
 | `GET /api/progress` | pupil | Their progress, or `204` if they have none yet |
 | `PUT /api/progress` | pupil | Saves progress and recomputes the summary; returns `409` on a stale revision |
 | `GET /api/teacher/class` | teacher | Every pupil with their summary |
+| (planned) `/api/teacher/entries`, `/api/teacher/topics` | teacher | Edit the dictionary, see [`teacher-dictionary.md`](teacher-dictionary.md) |
 | (later) picture upload and list | teacher / pupil | Teacher uploads to Blob; pupils get picture URLs per word |
 
 ## Frontend changes
@@ -187,7 +195,8 @@ Each phase gets its own `feature/<topic>` branch with small commits.
    - Login endpoint and screen, progress endpoints, the save throttle and retry, and the conflict check.
    - Import Nóra's existing `demo/data/progress.json` as one pupil.
 3. **Teacher view.** Teacher login and a class table with XP, words per level, streak and last active.
-4. **Later: teacher pictures.** A storage account, teacher upload, and pictures shown next to or instead of the emoji. Pictures are read from Blob directly by the browser.
+4. **Teacher dictionary.** The teachers enter the words, phrases and topics in the teacher's view; they are stored in the Cosmos container `dictionary`. Plan: [`teacher-dictionary.md`](teacher-dictionary.md).
+5. **Later: teacher pictures.** A storage account, teacher upload, and pictures shown next to or instead of the emoji. Pictures are read from Blob directly by the browser.
 
 ## Decisions and rejected alternatives
 
