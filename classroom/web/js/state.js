@@ -1,6 +1,6 @@
 // Everything a pupil has achieved. One JSON object per pupil, saved through api.js to the server.
 //
-// words[key] = { lvl 0..5, ok, bad, last, upDay, upCount }   (key = lower-case English word)
+// words[key] = { lvl 0..5, ok, bad, last, upDay, upCount }   (key = the dictionary entry's id, which never changes)
 //   lvl: 0 = just met, 1-2 = learning, 3-4 = knows it, 5 = mastered (gold card)
 //   absent = never seen.
 //

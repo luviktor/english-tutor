@@ -1,21 +1,36 @@
-// The dictionary as the server parsed it from data/dictionary.csv.
+// The class's dictionary, as the teachers entered it (GET /api/dictionary).
+//
+// word:  { key, topicId, topic (name), kind ('word' | 'phrase'), english, alts, hu, note, visual, ... }
+// topic: { id, name, emoji, color, ... }, in the teachers' order; a topic may have no word yet.
+// `key` is the entry's generated id and never changes, so it is what the pupils' progress is saved under.
+// `kind` is not used by the games yet.
 
 import { getDictionary } from './api.js';
 import { el, shuffle } from './util.js';
 
 export const dict = { words: [], topics: [], byKey: new Map(), warnings: [] };
 
-export async function loadDictionary() {
-  const d = await getDictionary();
+/** Replaces the dictionary: after loading it, and after a teacher changed it. */
+export function setDictionary(d) {
   dict.words = d.words;
   dict.topics = d.topics;
   dict.warnings = d.warnings || [];
   dict.byKey = new Map(d.words.map(w => [w.key, w]));
 }
 
+export async function loadDictionary() {
+  setDictionary(await getDictionary());
+}
+
 /** '*' means every word. */
 export const wordsOf = topic => (topic === '*' ? dict.words : dict.words.filter(w => w.topic === topic));
 export const topicInfo = name => dict.topics.find(t => t.name === name);
+
+/** The topics the pupils can practise: those with at least one word. (The teachers' view lists all of them.) */
+export const practiceTopics = () => dict.topics.filter(t => dict.words.some(w => w.topicId === t.id));
+
+/** The teacher's short Hungarian hint on when the word is used, shown small under its Hungarian meaning; null for none. */
+export const noteLine = (word, extraClass = '') => (word.note ? el('div', { class: `word-note ${extraClass}`.trim() }, word.note) : null);
 
 /** Not every word has a picture: the dictionary leaves `visual` empty, and the games then use text only. */
 export const hasPicture = word => word.visual !== '';

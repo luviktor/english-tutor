@@ -6,6 +6,16 @@ namespace EnglishTutor.Api.Tests;
 public class ProgressSummaryTests
 {
     [Fact]
+    public void CountsOnlyTheWordsItIsToldAreCurrent()
+    {
+        var data = JsonDocument.Parse("""{"words": {"e-1": {"lvl": 5}, "e-2": {"lvl": 1}, "e-gone": {"lvl": 5}}}""").RootElement;
+
+        Assert.Equal([0, 1, 0, 0, 0, 1], ProgressSummary.From(data, new HashSet<string> { "e-1", "e-2" }).WordsByLevel);
+        Assert.Equal([0, 0, 0, 0, 0, 0], ProgressSummary.From(data, new HashSet<string>()).WordsByLevel);
+        Assert.Equal([0, 1, 0, 0, 0, 2], ProgressSummary.From(data, null).WordsByLevel);
+    }
+
+    [Fact]
     public void SummarisesTheFrontendStateObject()
     {
         var data = JsonDocument.Parse("""

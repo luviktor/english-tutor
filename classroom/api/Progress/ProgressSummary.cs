@@ -24,7 +24,11 @@ public sealed record ProgressSummary(
 {
     public const int RecentDayCount = 14;
 
-    public static ProgressSummary From(JsonElement data)
+    /// <param name="currentWords">
+    /// The ids of the entries that are in the dictionary now. Progress on an entry a teacher has since deleted stays
+    /// in the saved data, but is not counted. Null counts every word, e.g. when the dictionary can't be read.
+    /// </param>
+    public static ProgressSummary From(JsonElement data, IReadOnlySet<string>? currentWords = null)
     {
         var player = Child(data, "player");
         var streak = Child(data, "streak");
@@ -35,6 +39,7 @@ public sealed record ProgressSummary(
         {
             foreach (var word in words.EnumerateObject())
             {
+                if (currentWords is not null && !currentWords.Contains(word.Name)) continue;
                 wordsByLevel[Math.Clamp(Number(word.Value, "lvl"), 0, 5)]++;
             }
         }

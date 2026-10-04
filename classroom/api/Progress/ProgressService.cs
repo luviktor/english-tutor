@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using EnglishTutor.Api.Dictionary;
 
 namespace EnglishTutor.Api.Progress;
 
@@ -11,7 +12,7 @@ public sealed record SaveResult(bool Saved, ProgressDocument? Current);
 /// Reads and saves pupils' progress. A save names the revision it is based on; if another device
 /// saved in the meantime, the save is rejected and the caller gets the newer document instead.
 /// </summary>
-public sealed class ProgressService(IProgressStore store, TimeProvider time)
+public sealed class ProgressService(IProgressStore store, ICurrentWords currentWords, TimeProvider time)
 {
     public async Task<ProgressDocument?> GetAsync(string pupilId, CancellationToken cancellationToken) =>
         (await store.GetAsync(pupilId, cancellationToken))?.Document;
@@ -19,7 +20,9 @@ public sealed class ProgressService(IProgressStore store, TimeProvider time)
     public async Task<SaveResult> SaveAsync(string pupilId, int baseRevision, JsonElement data, CancellationToken cancellationToken)
     {
         data = WithoutPupilName(data);
-        var summary = ProgressSummary.From(data);
+        // The summary counts only words that are still in the dictionary. A word a teacher deletes later drops out
+        // of the class table at the pupil's next save.
+        var summary = ProgressSummary.From(data, await currentWords.KeysAsync(cancellationToken));
         var current = await store.GetAsync(pupilId, cancellationToken);
         if (current is null)
         {

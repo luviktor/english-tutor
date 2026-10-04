@@ -46,6 +46,21 @@ export const todayStr = () => dayStr();
 export const daysBetween = (a, b) =>
   Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5);
 
+/** "ma", "tegnap" or "3 napja" for a timestamp. */
+export function relativeDay(iso) {
+  const days = daysBetween(dayStr(new Date(iso)), todayStr());
+  return days <= 0 ? 'ma' : days === 1 ? 'tegnap' : `${days} napja`;
+}
+
+/** One emoji as the user sees it: a single character (a flag or a family counts as one) that is not a plain letter or digit. */
+export function isOneEmoji(text) {
+  const parts = [...new Intl.Segmenter().segment(text)];
+  return parts.length === 1 && /\p{Extended_Pictographic}|\p{Emoji_Presentation}|⃣/u.test(text);
+}
+
+/** Lower-case without accents, for searching: "Ősz" is found by "osz". */
+export const fold = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
 /** Letters only, lower-case, accents removed: what we compare typed answers with. */
 export const lettersOnly = s =>
   String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '');
