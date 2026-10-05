@@ -1,0 +1,40 @@
+{
+  "source": "notebook page 1 (seasons, time, animals, garden), photo of 2026-10-05",
+  "topics": [
+    { "name": "Évszakok", "emoji": "🍂", "color": "#ffa94d" },
+    { "name": "Idő és naptár", "emoji": "📅", "color": "#b197fc" },
+    { "name": "Állatok", "emoji": "🐾", "color": "#69db7c" },
+    { "name": "Kert és játékok", "emoji": "🌳", "color": "#ffd43b" }
+  ],
+  "entries": [
+    { "topic": "Évszakok", "english": "season", "hu": "évszak" },
+    { "topic": "Évszakok", "english": "winter", "hu": "tél", "visual": "❄️" },
+    { "topic": "Évszakok", "english": "spring", "hu": "tavasz", "visual": "🌷" },
+    { "topic": "Évszakok", "english": "summer", "hu": "nyár", "visual": "☀️" },
+    { "topic": "Évszakok", "english": "autumn", "hu": "ősz", "visual": "🍁" },
+
+    { "topic": "Idő és naptár", "english": "time", "hu": "idő" },
+    { "topic": "Idő és naptár", "english": "year", "hu": "év", "visual": "📆" },
+    { "topic": "Idő és naptár", "english": "month", "hu": "hónap", "visual": "🗓️" },
+    { "topic": "Idő és naptár", "english": "calendar", "hu": "naptár", "visual": "📅" },
+    { "topic": "Idő és naptár", "english": "day", "hu": "nap", "visual": "🌞" },
+    { "topic": "Idő és naptár", "english": "night", "hu": "éjszaka", "visual": "🌙" },
+    { "topic": "Idő és naptár", "english": "sunshine", "hu": "napfény", "visual": "🌤️" },
+    { "topic": "Idő és naptár", "english": "moonlight", "hu": "holdfény", "visual": "🌕" },
+
+    { "topic": "Állatok", "english": "horse", "hu": "ló", "visual": "🐴" },
+    { "topic": "Állatok", "english": "cat", "hu": "macska", "visual": "🐈" },
+    { "topic": "Állatok", "english": "kitten", "hu": "cica", "visual": "🐱" },
+    { "topic": "Állatok", "english": "hedgehog", "hu": "sün", "visual": "🦔" },
+    { "topic": "Állatok", "english": "hamster", "hu": "hörcsög", "visual": "🐹" },
+    { "topic": "Állatok", "english": "pet", "hu": "házikedvenc", "visual": "🐶" },
+    { "topic": "Állatok", "english": "animal", "hu": "állat", "visual": "🐾" },
+
+    { "topic": "Kert és játékok", "english": "garden", "hu": "kert", "visual": "🏡" },
+    { "topic": "Kert és játékok", "english": "in the garden", "hu": "a kertben", "kind": "phrase" },
+    { "topic": "Kert és játékok", "english": "scooter", "hu": "roller", "visual": "🛴" },
+    { "topic": "Kert és játékok", "english": "doll", "hu": "baba", "visual": "🪆" },
+    { "topic": "Kert és játékok", "english": "Max has got a bag", "hu": "Maxnek van egy táskája", "alsoAccepted": ["Max's got a bag"], "visual": "🎒" },
+    { "topic": "Kert és játékok", "english": "she has got ...", "hu": "van neki ...", "alsoAccepted": ["she's got"], "note": "lányról, nőről" }
+  ]
+}
