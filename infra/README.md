@@ -6,6 +6,7 @@
 | Resource | Name | Notes |
 |---|---|---|
 | Static Web App, Free plan | `swa-englishtutor` | Frontend + managed Functions API. Pull-request previews are disabled, because they would use the production database. |
+| Custom domains | `erkel2023b.hu`, `www.erkel2023b.hu` | Free TLS certificates from Azure. The Free plan allows 2 domains, both are used. The DNS records are at the registrar, not in this template (step 5). |
 | Cosmos DB account, free tier | `cosmos-englishtutor-<suffix>` | Account throughput limited to 1000 RU/s, continuous 7-day backup (no storage charge), keys can't create or delete containers. |
 | Database | `englishtutor` | 1000 RU/s shared by its containers. |
 | Container | `progress` | One document per pupil, partition key `/id`, the `data` field isn't indexed. |
@@ -108,8 +109,9 @@ az staticwebapp secrets list --name swa-englishtutor --resource-group rg-english
 ```
 
 Copy the output to GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
-Then push to `master` (or run the workflow by hand from the **Actions** tab). The app's address is the
-`staticWebAppUrl` output of the deployment, also shown on the Static Web App's **Overview** page.
+Then push to `master` (or run the workflow by hand from the **Actions** tab). The app's default address is
+the `staticWebAppUrl` output of the deployment, also shown on the Static Web App's **Overview** page; the
+class uses the custom domain (step 5), and the default address keeps working next to it.
 
 If the token leaks, reset it with `az staticwebapp secrets reset-api-key` and update the secret.
 
@@ -118,6 +120,54 @@ The workflow doesn't use `Azure/static-web-apps-deploy`, but runs the same deplo
 though the platform supports it, and fails with *Cannot deploy to the function app because Function language
 info isn't provided*. The comment in the workflow says how to check whether `:stable` has caught up, so the
 action can be used again.
+
+## 5. Custom domain
+
+The class uses `https://erkel2023b.hu`; `https://www.erkel2023b.hu` serves the same app (there is no redirect
+between the two). The domain is registered and its DNS zone is edited at dns24.hu. `main.bicep` declares both
+names (parameter `customDomains`), so redeploying keeps them; the DNS records below stay at the registrar.
+
+| Name in the zone | Type | Value | Purpose |
+|---|---|---|---|
+| root (`erkel2023b.hu`) | `TXT` | the token Azure generated | Proves that the domain is ours. Keep it. |
+| root (`erkel2023b.hu`) | `A` | the app's `stableInboundIP` | Sends the root domain to the app. |
+| `www` | `CNAME` | the default host name, `<name>.<n>.azurestaticapps.net` | Sends `www` to the app; it also validates the name. |
+
+The app's `stableInboundIP` (the portal shows it under **Overview → JSON View**):
+
+```bash
+az resource show --resource-group rg-englishtutor --resource-type Microsoft.Web/staticSites --name swa-englishtutor --api-version 2024-11-01 --query properties.stableInboundIP --output tsv
+```
+
+**Why an A record at the root.** The DNS host offers only `A`, `CNAME` and `TXT` records; a root domain can't
+be a `CNAME`, and there is no `ALIAS`/`ANAME`. An `A` record points at one regional host, so the app loses the
+global distribution of its static files (Microsoft's own caveat). For a class of about 25 that doesn't matter.
+If the address ever changes, the root domain stops working until the record is updated, so compare the command
+above with `nslookup erkel2023b.hu` when the root domain suddenly fails while `www` works. Moving the zone to
+Azure DNS (cents per month) would allow an alias record and bring the global distribution back.
+
+**First setup** (done on 2026-10-05), once the domain resolves publicly:
+
+1. Portal: **Static Web App → Custom domains → + Add → Custom domain on other DNS**. For the root, enter the
+   name, choose **TXT**, **Generate code**, and add the code as the `TXT` record. Once the portal shows it
+   as validated, add the `A` record.
+2. For `www`, add the `CNAME` record first, then add the name in the portal with the **CNAME** type.
+3. Azure issues the certificates within minutes. DNS changes can take longer; the zone's TTL is 3600 s, so
+   a device that looked the name up earlier can keep the old answer for an hour.
+
+`main.bicep` then matches what exists. The deployment validates the names while it runs, so on a new
+subscription, where the records don't exist yet, deploy without them first and add them afterwards:
+
+```bash
+az deployment group create --resource-group rg-englishtutor --template-file infra/main.bicep --parameters customDomains="[]"
+```
+
+A deployment never deletes a domain that is missing from the list (incremental mode); remove one in the
+portal. Azure renews the certificates by itself, as long as the names keep resolving to the Static Web App.
+
+The registration fee goes to the registrar and is the only cost outside Azure's free tiers. A browser keeps its
+saved password and local copy per address, so a device that used the default address logs in once on the new
+one; the progress itself is on the server.
 
 ## Don't create
 
