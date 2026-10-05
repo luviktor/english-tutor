@@ -15,7 +15,7 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 
 - `demo/` – the demo app (details below).
 - `classroom/` – `web/` (frontend copied from `demo/web`; pupils keep the demo's look, teachers get a calmer one), `api/` (`EnglishTutor.Api`), `tests/` (xUnit), `EnglishTutor.slnx`, `swa-cli.config.json`.
-- `infra/main.bicep` – Static Web App `swa-englishtutor`, Cosmos account `cosmos-englishtutor-<suffix>`, database `englishtutor`, containers `progress` and `dictionary`. The API's key can't create containers in Azure, so deploy the template before code that uses a new one.
+- `infra/main.bicep` – Static Web App `swa-englishtutor` with its custom domains `erkel2023b.hu` and `www.erkel2023b.hu` (the DNS records are at the registrar, see `infra/README.md`), Cosmos account `cosmos-englishtutor-<suffix>`, database `englishtutor`, containers `progress` and `dictionary`. The API's key can't create containers in Azure, so deploy the template before code that uses a new one.
 - `.github/workflows/pages.yml` – deploys the demo to GitHub Pages; `.github/workflows/azure-static-web-apps.yml` – tests and deploys `classroom/` to Azure on pushes to `master`.
 - `.claude/launch.json` – preview configs (`english-tutor`, `pages-preview`, `classroom`).
 - `docs/azure-plan.md`, `README.md`, `.gitignore`, this file.

@@ -21,6 +21,10 @@ words, which stay in the demo, and gives each of the two teachers their own pass
 `TEACHER_PASSWORD`). Before the pupils get access: deploy `infra/main.bicep` (it adds the `dictionary` container;
 deploy it before the code), set `TEACHERS_JSON`, and let the teachers enter the words.
 
+Custom domain (2026-10-05): the app is served from `https://erkel2023b.hu` and `https://www.erkel2023b.hu`,
+declared in `infra/main.bicep`; the DNS records and the reason for the root domain's `A` record are in
+[`infra/README.md`](../infra/README.md#5-custom-domain). The default `*.azurestaticapps.net` address keeps working.
+
 ## Requirements
 
 - About 25 pupils, each playing at most 30 minutes a day.
@@ -141,7 +145,7 @@ classroom/
     local.settings.json    gitignored, local secrets
   swa-cli.config.json      folders for `swa start`
 infra/
-  main.bicep               SWA Free, Cosmos free tier (database + container)
+  main.bicep               SWA Free with its custom domains, Cosmos free tier (database + containers)
 .github/workflows/
   azure-static-web-apps.yml
 docs/azure-plan.md         this file
@@ -176,6 +180,7 @@ Alternative without the emulator: point `local.settings.json` at a separate dev 
 
 - **Cosmos DB:** free tier plus the 1000 RU/s account limit.
 - **Static Web Apps Free:** bandwidth overage can't be billed.
+- **Custom domains:** free on Azure's side (2 per app on Free, certificates included). Only the registration fee at the registrar costs money.
 - **Don't create** Key Vault, App Service plans, Container Registry or Front Door.
 - **Application Insights (optional):** if enabled, set a daily cap (Log Analytics includes 5 GB/month free).
 - **Budget alert:** €1/month in Cost Management. It only sends alerts, with some delay; it stops nothing.
@@ -213,11 +218,13 @@ Each phase gets its own `feature/<topic>` branch with small commits.
 | Built-in Static Web Apps login (Microsoft/GitHub) for the teacher | Not needed while a single teacher password is enough; it can be added later without other changes. |
 | Everything in West Europe | Static Web Apps Free has no other European region, and Azure refuses new tenants in West Europe (`RequestDisallowedByAzure`). A free support request would lift it; the user preferred not to file one. |
 | API in East US 2, Cosmos DB in the EU | About 90 ms more per database call, and no real gain: the API runs in the US and handles the data there anyway. |
+| Root domain as an alias to the default host name, or the zone in Azure DNS | The registrar's DNS panel offers only `A`, `CNAME` and `TXT` records, and a root domain can't be a `CNAME`. The root domain is an `A` record to the app's stable inbound IP: one regional host and no global distribution, acceptable for about 25 pupils. Azure DNS (cents per month) would bring both back. |
 | Own Functions app in an EU region, Static Web App in the US for the static files only | Needs the Standard plan (about $9/month) or a cross-origin API (CORS, CSP and pipeline changes, a storage account). The upgrade path if East US 2 turns out to be unacceptable. |
 
 ## Risks
 
 - **No uptime guarantee:** Static Web Apps Free has no SLA. The Standard plan (about $9/month) adds one.
+- **Root domain on an `A` record:** if Azure changes the app's inbound IP, `erkel2023b.hu` fails while `www.erkel2023b.hu` and the default address keep working, until the record is updated (how to check: `infra/README.md`, step 5).
 - **Cold start:** the first request after an idle period takes a few seconds, so the login screen says "Kapcsolódás…" and warns that the first login can take a few seconds.
 - **Guessable passwords:** short passwords can be guessed by a script. That's accepted given what's at stake (game progress only).
 - **Children's data:** everything runs in East US 2 (see below), so the data is in the US. Nothing identifies a child there: pupils have an alias and a code, never their own name or nickname (the API even drops `player.name` before saving), and the list of who is who stays on paper with the two mentors. It is still personal data in the legal sense, because the mentors can link it to a child. The parents therefore get the notice and consent form (`docs/szuloi-tajekoztato.docx`) and agree per child, and the data is deleted at the end of the school year. The user is a parent of one of the children, not a teacher, and runs the app privately with two mentors.

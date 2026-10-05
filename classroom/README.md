@@ -158,3 +158,8 @@ served.
 settings above: [`infra/README.md`](../infra/README.md). When a release needs a new Cosmos container (the
 `dictionary` container was the first), deploy `infra/main.bicep` before pushing the code: the API's key
 can't create containers in Azure.
+
+The class uses the custom domain `https://erkel2023b.hu` (also `https://www.erkel2023b.hu`); the DNS records
+are described in [`infra/README.md`](../infra/README.md#5-custom-domain). The default `*.azurestaticapps.net`
+address works as well. A browser keeps the saved password and the local copy per address, so a device that
+used another address logs in once more; the progress is on the server.
