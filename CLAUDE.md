@@ -18,6 +18,7 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 - `infra/main.bicep` – Static Web App `swa-englishtutor` with its custom domains `erkel2023b.hu` and `www.erkel2023b.hu` (the DNS records are at the registrar, see `infra/README.md`), Cosmos account `cosmos-englishtutor-<suffix>`, database `englishtutor`, containers `progress` and `dictionary`. The API's key can't create containers in Azure, so deploy the template before code that uses a new one.
 - `.github/workflows/pages.yml` – deploys the demo to GitHub Pages; `.github/workflows/azure-static-web-apps.yml` – tests and deploys `classroom/` to Azure on pushes to `master`.
 - `.claude/launch.json` – preview configs (`english-tutor`, `pages-preview`, `classroom`).
+- `.claude/skills/` – developer skills for filling the classroom dictionary, not part of the app; both run only when invoked by name (`disable-model-invocation`): `/prepare-dictionary-import` (a photo or list → a reviewed import file in the gitignored `classroom/imports/`) and `/upload-dictionary-import` (an import file → the teacher API, target `local`, `web` or `both`; script `upload-dictionary.mjs`, which only adds and never changes or deletes entries).
 - `docs/azure-plan.md`, `README.md`, `.gitignore`, this file.
 
 ## Running

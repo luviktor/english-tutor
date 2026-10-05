@@ -42,7 +42,9 @@ meaning may not contain line breaks either; "no picture" is an empty emoji in th
   - `GET /api/dictionary` is open to anyone today. It now holds the class's own list and the teachers' names,
     so it requires a pupil or teacher password.
   - The app loads the dictionary only after login anyway.
-- **No import.** The teachers type the initial set in the form.
+- **No import.** The teachers type the initial set in the form. (The developer's skills `prepare-dictionary-import`
+  and `upload-dictionary-import` in `.claude/skills/` can load a prepared word list through these same teacher
+  endpoints. That is tooling, not an app feature, and adds no endpoint.)
 
 ## Teacher passwords
 
