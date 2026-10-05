@@ -1,7 +1,8 @@
 // EnglishTutor on Azure: everything the app needs, on always-free tiers.
 //
 //   Static Web App  swa-englishtutor                Free plan, frontend + managed Functions API
-//   Cosmos DB       cosmos-englishtutor-<suffix>    free tier, account throughput limited to 1000 RU/s
+//     custom domains  erkel2023b.hu, www.erkel2023b.hu   (DNS records live at the registrar, see infra/README.md)
+//   Cosmos DB      cosmos-englishtutor-<suffix>    free tier, account throughput limited to 1000 RU/s
 //     database      englishtutor                    1000 RU/s shared by its containers
 //     container     progress                        one document per pupil, partition key /id
 //     container     dictionary                      the teachers' entries and topics, partition key /classId
@@ -22,6 +23,18 @@ param cosmosLocation string = location
 @description('Makes the Cosmos DB account name globally unique.')
 param cosmosSuffix string = take(uniqueString(resourceGroup().id), 6)
 
+@description('Custom domains of the Static Web App; the Free plan allows 2. The DNS records must exist before the deployment, because Azure validates them while it runs: a TXT record carrying a token for a root domain (dns-txt-token), the CNAME record itself for a subdomain (cname-delegation). To deploy somewhere the records do not exist yet, pass --parameters customDomains="[]" first (see infra/README.md).')
+param customDomains array = [
+  {
+    name: 'erkel2023b.hu'
+    validationMethod: 'dns-txt-token'
+  }
+  {
+    name: 'www.erkel2023b.hu'
+    validationMethod: 'cname-delegation'
+  }
+]
+
 var appName = 'englishtutor'
 
 resource staticWebApp 'Microsoft.Web/staticSites@2024-11-01' = {
@@ -39,7 +52,17 @@ resource staticWebApp 'Microsoft.Web/staticSites@2024-11-01' = {
   }
 }
 
-resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
+// The TLS certificates are issued and renewed by Azure at no charge, as long as the names keep resolving
+// to the Static Web App.
+resource customDomain 'Microsoft.Web/staticSites/customDomains@2024-11-01' = [for domain in customDomains: {
+  parent: staticWebApp
+  name: domain.name
+  properties: {
+    validationMethod: domain.validationMethod
+  }
+}]
+
+resource cosmos'Microsoft.DocumentDB/databaseAccounts@2025-04-15' = {
   name: 'cosmos-${appName}-${cosmosSuffix}'
   location: cosmosLocation
   kind: 'GlobalDocumentDB'
@@ -144,4 +167,5 @@ resource dictionaryContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases
 
 output staticWebAppName string = staticWebApp.name
 output staticWebAppUrl string = 'https://${staticWebApp.properties.defaultHostname}'
+output customDomainUrls array = [for domain in customDomains: 'https://${domain.name}']
 output cosmosAccountName string = cosmos.name
