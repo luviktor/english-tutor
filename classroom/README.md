@@ -72,6 +72,7 @@ All endpoints except login need the password in the `X-EnglishTutor-Password` he
 | Endpoint | Who | Purpose |
 |---|---|---|
 | `GET /api/dictionary` | pupil or teacher | `{ topics, words, warnings }`: the class's own dictionary from the Cosmos container `dictionary`. Built at most every 30 s per Functions instance; browsers revalidate with the ETag (`Cache-Control: private, no-cache`, 304 when unchanged). If Cosmos can't be read it serves the last good copy, or 503 when it has none. |
+| `GET /api/version` | anyone | `{ version }`: the deployed release, `x.y.z`, see [Versioning](#versioning) |
 | `POST /api/login` | anyone | `{"password": "..."}` → `{ id, name, role }` (`pupil` or `teacher`), or 401 |
 | `GET /api/progress` | pupil | `{ revision, updatedAt, data }`, or 204 when there is nothing yet |
 | `PUT /api/progress` | pupil | `{ revision, data }` → `{ revision, updatedAt }`; 409 with the newer copy when `revision` is stale |
@@ -84,6 +85,29 @@ it is based on. Errors: 400 `{ error, field }` for a broken rule, 404 when the e
 409 `{ error, reason, current }` when another teacher got there first (`stale`), another entry already has the
 spelling (`duplicate`), or a topic still has entries (`topic-not-empty`). The messages are in Hungarian. Details:
 [`docs/teacher-dictionary.md`](../docs/teacher-dictionary.md#teacher-api).
+
+## Versioning
+
+The classroom app (frontend and API deploy together) has one version, `x.y.z` ([semantic versioning](https://semver.org)),
+kept in one place: `<Version>` in [`api/EnglishTutor.Api.csproj`](api/EnglishTutor.Api.csproj). `GET /api/version`
+serves it; the login screen shows it faintly at the bottom and the teacher's view next to the title
+(*Angol kaland – tanári nézet – v0.3.0*). The demo is not versioned.
+
+| Part | Raise it for | Example |
+|---|---|---|
+| `z` patch | a fix or tweak that adds no ability: a bug, wording, styling | 0.4.0 → 0.4.1 |
+| `y` minor | every new feature, and any additive API change (a new endpoint, a new optional field) | 0.3.1 → 0.4.0 (`z` back to 0) |
+| `x` major | the API breaks | 0.4.1 → 1.0.0 (`y` and `z` back to 0) |
+
+An API change **breaks** when a client written for the old API would stop working: removing or renaming an endpoint,
+a field or a status code; changing what one means; making an optional field required; rejecting input that was
+accepted before (stricter validation); changing how a request is authenticated. It matters most for the dictionary
+endpoints (`GET /api/dictionary` and everything under `/api/teacher/`), which the `upload-dictionary-import` skill's
+script talks to. Changing how stored data is read without migrating it (the entries' generated ids are the keys of the
+pupils' progress, the Cosmos document shapes) counts as breaking too.
+
+Docs, tests, CI and refactoring don't change the version. Bump it once per branch, in its last commit, so the version
+on `master` is always the one that gets deployed.
 
 ## Run it locally
 
