@@ -60,9 +60,11 @@ export function render(app, identity) {
   let active = TABS[0];
 
   const reload = () => panels.get(active.id).reload();
+  const version = el('span', { class: 'app-version' });
+  api.getVersion().then(v => { if (v) version.textContent = ` – v${v}`; });
   $('#hud').replaceChildren(el('div', { class: 'hud-inner' },
     el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, 'Aa'),
-      el('span', { class: 'hud-title' }, `${APP_TITLE} – tanári nézet`)),
+      el('span', { class: 'hud-title' }, `${APP_TITLE} – tanári nézet`, version)),
     el('div', { class: 'hud-chips' },
       el('button', { class: 'chip', type: 'button', onclick: reload }, '🔄 Frissítés'),
       el('button', { class: 'chip chip-user', type: 'button', title: 'Kilépés', onclick: logout }, el('span', { class: 'user-name' }, identity.name), logoutIcon()))));

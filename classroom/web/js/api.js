@@ -56,6 +56,20 @@ export async function login(typed) {
   return identity;
 }
 
+let versionRequest = null;
+
+/**
+ * The deployed release, "x.y.z" (kept in EnglishTutor.Api.csproj), or '' when the API can't be reached: the version is
+ * only a label, so this never throws. Asked once; a failed ask is repeated by the next caller.
+ */
+export function getVersion() {
+  versionRequest ??= request('GET', 'version', { auth: false }).then(r => r?.version || '').catch(() => {
+    versionRequest = null;
+    return '';
+  });
+  return versionRequest;
+}
+
 /** Checks the remembered password; also wakes the API up after an idle period. */
 export const whoAmI = () => request('POST', 'login', { body: { password }, auth: false });
 
