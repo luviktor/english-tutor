@@ -69,7 +69,7 @@ Each word has level 0–5; a correct answer raises it by at most +2 per day (so 
 - A feature raises `y` (and resets `z`); a fix or tweak raises `z`; an API change that breaks a client (above all the dictionary and teacher endpoints the upload skill uses) raises `x` (and resets `y` and `z`). Docs, tests, CI and refactoring don't bump.
 - Bump it once, in the last commit of the branch (`Bump the version to 1.1.0`), together with that version's entry in `classroom/CHANGELOG.md` (a **Breaking changes** group first when `x` is raised), and say in the PR description which part you raised and why. If unsure whether a change breaks the API, ask.
 - A breaking change also means adapting `.claude/skills/upload-dictionary-import/upload-dictionary.mjs` and raising its `API_MAJOR`: the script reads `GET /api/version` and refuses to write to an API of another major version.
-- After the branch is merged, the merge commit gets an annotated tag `v<version>` (tags are pushed only when the user asks).
+- When the branch is final, its last commit gets an annotated tag `v<version>` (it stays reachable because PRs are merged with a merge commit). Tags are pushed only when the user asks.
 
 ## Git workflow
 

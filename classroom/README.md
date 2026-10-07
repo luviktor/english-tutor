@@ -109,8 +109,9 @@ script is adapted to the change and its `API_MAJOR` raised with it; until then i
 
 Docs, tests, CI and refactoring don't change the version. Bump it once per branch, in its last commit, so the version
 on `master` is always the one that gets deployed, and write that version's entry in [`CHANGELOG.md`](CHANGELOG.md) in the
-same commit (a **Breaking changes** group first, when `x` is raised). After the branch is merged, tag the merge commit:
-`git tag -a v1.1.0 -m "EnglishTutor 1.1.0"`.
+same commit (a **Breaking changes** group first, when `x` is raised). When the branch is final, tag its last commit
+(`git tag -a v1.1.0 -m "EnglishTutor 1.1.0"`); a tag is pushed with `git push origin v1.1.0`, and if more commits come
+before the merge, the tag moves to the new last one.
 
 ## Run it locally
 
