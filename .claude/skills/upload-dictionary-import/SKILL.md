@@ -80,6 +80,14 @@ nothing existing is changed or deleted (corrections are made in the Szótár for
 | `--target local\|web` | Where to write; default `local` (`http://localhost:7071`). `web` is `https://www.erkel2023b.hu` (`--url` overrides it, https only). |
 | `--dry-run` / `--apply` / `--confirm` | Only plan / write without asking / plan, then ask (terminal only). Web in a terminal confirms by itself; web without a terminal only plans unless `--apply`. |
 | `--ask-password` | Prompt for the password even if one is available. |
+| `--ignore-api-version` | Go on although the API's version isn't the one the script is written for (see below). Not for routine use. |
+
+The API version: before it logs in, the script reads `GET /api/version` and stops unless the API's major version is
+the script's `API_MAJOR` (1 now), because the endpoints change only in a new major version (`Versioning` in
+`classroom/README.md`). It prints the version it found (`API 1.0.0`). An API with no `/api/version` is older than 1.0.0
+(deploy it, or restart the local `func start`, which keeps running the build it started with). A newer major version
+means the endpoints may have changed: adapt the script to the breaking changes in `classroom/CHANGELOG.md`, then raise
+`API_MAJOR`. Don't reach for `--ignore-api-version` to get past this; tell the user what the script reported.
 
 Passwords: the local target uses the first teacher in `local.settings.json`, else in the example settings (test values).
 The web target uses `ENGLISHTUTOR_TEACHER_PASSWORD` if it is set, else asks in a terminal. The variable is never used for

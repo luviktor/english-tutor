@@ -5,8 +5,8 @@
 //
 //   node upload-dictionary.mjs <import-file.json> --check
 //   node upload-dictionary.mjs <import-file.json> [--target local|web] [--url <base url>]
-//                              [--dry-run | --apply | --confirm] [--ask-password]
-//   node upload-dictionary.mjs --list [--target local|web] [--url <base url>] [--ask-password]
+//                              [--dry-run | --apply | --confirm] [--ask-password] [--ignore-api-version]
+//   node upload-dictionary.mjs --list [--target local|web] [--url <base url>] [--ask-password] [--ignore-api-version]
 //
 // --check     validate the import file offline (no API, no password) and exit.
 // --list      show the topics already in the dictionary and exit.
@@ -21,6 +21,10 @@
 // --dry-run   only show what would happen.      --apply    write without asking.
 // --confirm   show the plan, then ask (terminal only).   --ask-password   always prompt for the password.
 //
+// API version: before logging in, the script reads GET /api/version and stops unless the API's major version is
+// API_MAJOR below (the endpoints can change only in a new major version, see "Versioning" in classroom/README.md).
+// An API with no /api/version predates 1.0.0. --ignore-api-version goes on anyway, at your own risk.
+//
 // Safe to repeat: an existing topic is reused by name, an entry whose spelling is already in the dictionary is
 // skipped ("already there", or a conflict when its Hungarian meaning differs), and nothing existing is ever
 // changed or deleted: corrections are made in the Szótár form. The password is never printed or stored.
@@ -33,6 +37,9 @@ import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
+// The major version of the classroom API this script is written for. When the API's major version is raised (a breaking
+// change of the endpoints used below), adapt the script first and raise this number with it.
+const API_MAJOR = 1;
 const PASSWORD_HEADER = 'X-EnglishTutor-Password';
 const WEB_PASSWORD_VARIABLE = 'ENGLISHTUTOR_TEACHER_PASSWORD';
 const WEB_URL = 'https://www.erkel2023b.hu';
@@ -41,8 +48,8 @@ const WEB_START_ATTEMPTS = 6;
 const WEB_START_WAIT_MS = 5000;
 const WEB_START_TIMEOUT_MS = 30000;
 const CALL_TIMEOUT_MS = 20000;
-const USAGE = 'Usage: node upload-dictionary.mjs <import-file.json> [--check | --target local|web] [--url <base url>] [--dry-run | --apply | --confirm] [--ask-password]\n' +
-  '       node upload-dictionary.mjs --list [--target local|web] [--url <base url>] [--ask-password]';
+const USAGE = 'Usage: node upload-dictionary.mjs <import-file.json> [--check | --target local|web] [--url <base url>] [--dry-run | --apply | --confirm] [--ask-password] [--ignore-api-version]\n' +
+  '       node upload-dictionary.mjs --list [--target local|web] [--url <base url>] [--ask-password] [--ignore-api-version]';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
 // The limits of DictionaryRules.cs; the API is the one that counts, this only catches mistakes early.
@@ -75,9 +82,10 @@ async function main() {
   const target = await resolveTarget(options, interactive);
 
   const api = createApi(target);
+  const apiVersion = await checkApiVersion(api, target, options.ignoreApiVersion);
   const identity = await logIn(api, target);
   const modeNote = { plan: ' - DRY RUN, nothing is written', confirm: ' - will ask before writing' }[mode] ?? '';
-  console.log(`Target: ${options.target} (${target.url}), logged in as ${identity.name}${modeNote}\n`);
+  console.log(`Target: ${options.target} (${target.url}), API ${apiVersion}, logged in as ${identity.name}${modeNote}\n`);
 
   if (mode === 'list') {
     printTopics(await readDictionary(api));
@@ -109,7 +117,10 @@ async function main() {
 // --- arguments, import file, target -----------------------------------------------------------------------------
 
 function parseArguments(args) {
-  const options = { target: 'local', url: null, list: false, check: false, dryRun: false, apply: false, confirm: false, askPassword: false, filePath: null };
+  const options = {
+    target: 'local', url: null, list: false, check: false, dryRun: false, apply: false, confirm: false, askPassword: false,
+    ignoreApiVersion: false, filePath: null,
+  };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--target') options.target = args[++i];
@@ -120,6 +131,7 @@ function parseArguments(args) {
     else if (arg === '--apply') options.apply = true;
     else if (arg === '--confirm') options.confirm = true;
     else if (arg === '--ask-password') options.askPassword = true;
+    else if (arg === '--ignore-api-version') options.ignoreApiVersion = true;
     else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}\n${USAGE}`);
     else options.filePath = arg;
   }
@@ -354,30 +366,57 @@ function createApi(target) {
 }
 
 /**
- * Logs in, and waits for an API that is still starting: no answer or a 5xx is retried (the deployed Functions can
- * take a few seconds after being idle). Any other answer, including a wrong password, is final.
+ * Sends a request and waits for an API that is still starting: no answer or a 5xx is retried (the deployed Functions
+ * can take a few seconds after being idle). Any other answer, including a wrong password, is final.
  */
-async function logIn(api, target) {
+async function answerOf(api, target, method, path, body) {
   let problem = '';
   for (let attempt = 1; attempt <= target.attempts; attempt++) {
-    let login = null;
+    let response = null;
     try {
-      login = await api.call('POST', '/api/login', { password: target.password }, target.timeoutMs);
+      response = await api.call(method, path, body, target.timeoutMs);
     } catch (error) {
       problem = error.name === 'TimeoutError' ? 'no answer in time' : error.cause?.code ?? error.cause?.errors?.[0]?.code ?? error.message;
     }
-    if (login && login.status < 500) {
-      if (login.status === 200 && login.json?.role === 'teacher') return login.json;
-      const notDeployed = login.status === 404 ? ' A 404 usually means the API is not deployed.' : '';
-      throw new Error(`Login to ${target.url} failed (HTTP ${login.status}). ${target.hint}${notDeployed}`);
-    }
-    if (login) problem = `HTTP ${login.status}`;
+    if (response && response.status < 500) return response;
+    if (response) problem = `HTTP ${response.status}`;
     if (attempt < target.attempts) {
       console.log(`The API is not answering yet (${problem}); waiting ${target.waitMs / 1000} s (try ${attempt} of ${target.attempts})...`);
       await new Promise(done => setTimeout(done, target.waitMs));
     }
   }
   throw new Error(`Cannot reach ${target.url} (${problem}). ${target.unreachable}`);
+}
+
+/**
+ * Stops unless the API's major version is API_MAJOR (nothing is sent to an API this script may not understand, not
+ * even the password); returns the version to show. --ignore-api-version turns the stop into a warning.
+ */
+async function checkApiVersion(api, target, ignore) {
+  const response = await answerOf(api, target, 'GET', '/api/version');
+  const version = response.status === 200 ? /^(\d+)\.\d+\.\d+$/.exec(response.json?.version ?? '') : null;
+  let problem = null;
+  if (response.status === 404) {
+    problem = `${target.url} has no /api/version, so it runs an API older than 1.0.0 (this script is for ${API_MAJOR}.x). Deploy the current API, or restart the local one (func start).`;
+  } else if (!version) {
+    problem = `Cannot read the API version of ${target.url} (HTTP ${response.status}).`;
+  } else if (Number(version[1]) < API_MAJOR) {
+    problem = `${target.url} runs API ${version[0]}, older than the ${API_MAJOR}.x this script is written for. Deploy the current API, or restart the local one (func start).`;
+  } else if (Number(version[1]) > API_MAJOR) {
+    problem = `${target.url} runs API ${version[0]}, newer than the ${API_MAJOR}.x this script is written for, so the endpoints may have changed (classroom/CHANGELOG.md lists the breaking changes). Adapt the script, then raise API_MAJOR.`;
+  }
+  if (!problem) return version[0];
+  if (!ignore) throw new Error(`${problem}\nUse --ignore-api-version to go on anyway, at your own risk.`);
+  console.log(`Warning: ${problem}\nGoing on because of --ignore-api-version.\n`);
+  return version?.[0] ?? 'of unknown version';
+}
+
+/** Logs in; only a teacher's password is accepted. */
+async function logIn(api, target) {
+  const login = await answerOf(api, target, 'POST', '/api/login', { password: target.password });
+  if (login.status === 200 && login.json?.role === 'teacher') return login.json;
+  const notDeployed = login.status === 404 ? ' A 404 usually means the API is not deployed.' : '';
+  throw new Error(`Login to ${target.url} failed (HTTP ${login.status}). ${target.hint}${notDeployed}`);
 }
 
 async function readDictionary(api) {
