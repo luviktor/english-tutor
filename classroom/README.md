@@ -91,13 +91,13 @@ spelling (`duplicate`), or a topic still has entries (`topic-not-empty`). The me
 The classroom app (frontend and API deploy together) has one version, `x.y.z` ([semantic versioning](https://semver.org)),
 kept in one place: `<Version>` in [`api/EnglishTutor.Api.csproj`](api/EnglishTutor.Api.csproj). `GET /api/version`
 serves it; the login screen shows it faintly at the bottom and the teacher's view next to the title
-(*Angol kaland – tanári nézet – v0.3.0*). The demo is not versioned.
+(*Angol kaland – tanári nézet – v1.0.0*). The demo is not versioned.
 
 | Part | Raise it for | Example |
 |---|---|---|
-| `z` patch | a fix or tweak that adds no ability: a bug, wording, styling | 0.4.0 → 0.4.1 |
-| `y` minor | every new feature, and any additive API change (a new endpoint, a new optional field) | 0.3.1 → 0.4.0 (`z` back to 0) |
-| `x` major | the API breaks | 0.4.1 → 1.0.0 (`y` and `z` back to 0) |
+| `z` patch | a fix or tweak that adds no ability: a bug, wording, styling | 1.1.0 → 1.1.1 |
+| `y` minor | every new feature, and any additive API change (a new endpoint, a new optional field) | 1.0.3 → 1.1.0 (`z` back to 0) |
+| `x` major | the API breaks | 1.1.1 → 2.0.0 (`y` and `z` back to 0) |
 
 An API change **breaks** when a client written for the old API would stop working: removing or renaming an endpoint,
 a field or a status code; changing what one means; making an optional field required; rejecting input that was
