@@ -104,10 +104,13 @@ a field or a status code; changing what one means; making an optional field requ
 accepted before (stricter validation); changing how a request is authenticated. It matters most for the dictionary
 endpoints (`GET /api/dictionary` and everything under `/api/teacher/`), which the `upload-dictionary-import` skill's
 script talks to. Changing how stored data is read without migrating it (the entries' generated ids are the keys of the
-pupils' progress, the Cosmos document shapes) counts as breaking too.
+pupils' progress, the Cosmos document shapes) counts as breaking too. When the major version is raised, the upload
+script is adapted to the change and its `API_MAJOR` raised with it; until then it refuses to write to the new API.
 
 Docs, tests, CI and refactoring don't change the version. Bump it once per branch, in its last commit, so the version
-on `master` is always the one that gets deployed.
+on `master` is always the one that gets deployed, and write that version's entry in [`CHANGELOG.md`](CHANGELOG.md) in the
+same commit (a **Breaking changes** group first, when `x` is raised). After the branch is merged, tag the merge commit:
+`git tag -a v1.1.0 -m "EnglishTutor 1.1.0"`.
 
 ## Run it locally
 

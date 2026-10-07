@@ -14,7 +14,7 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 ## Repository layout
 
 - `demo/` – the demo app (details below).
-- `classroom/` – `web/` (frontend copied from `demo/web`; pupils keep the demo's look, teachers get a calmer one), `api/` (`EnglishTutor.Api`), `tests/` (xUnit), `EnglishTutor.slnx`, `swa-cli.config.json`.
+- `classroom/` – `web/` (frontend copied from `demo/web`; pupils keep the demo's look, teachers get a calmer one), `api/` (`EnglishTutor.Api`), `tests/` (xUnit), `EnglishTutor.slnx`, `swa-cli.config.json`, `CHANGELOG.md` (see Versioning).
 - `infra/main.bicep` – Static Web App `swa-englishtutor` with its custom domains `erkel2023b.hu` and `www.erkel2023b.hu` (the DNS records are at the registrar, see `infra/README.md`), Cosmos account `cosmos-englishtutor-<suffix>`, database `englishtutor`, containers `progress` and `dictionary`. The API's key can't create containers in Azure, so deploy the template before code that uses a new one.
 - `.github/workflows/pages.yml` – deploys the demo to GitHub Pages; `.github/workflows/azure-static-web-apps.yml` – tests and deploys `classroom/` to Azure on pushes to `master`.
 - `.claude/launch.json` – preview configs (`english-tutor`, `pages-preview`, `classroom`).
@@ -64,10 +64,12 @@ Each word has level 0–5; a correct answer raises it by at most +2 per day (so 
 
 ## Versioning
 
-`classroom/` has one `x.y.z` version (API and frontend deploy together): `<Version>` in `classroom/api/EnglishTutor.Api.csproj`, shown on the login screen and in the teacher's header through `GET /api/version`. The demo has none. Rules, with what counts as a breaking API change, are in `classroom/README.md#versioning`:
+`classroom/` has one `x.y.z` version (API and frontend deploy together), starting at 1.0.0: `<Version>` in `classroom/api/EnglishTutor.Api.csproj`, shown on the login screen and in the teacher's header through `GET /api/version`; `classroom/CHANGELOG.md` says what each version changed. The demo has none. Rules, with what counts as a breaking API change, are in `classroom/README.md#versioning`:
 
 - A feature raises `y` (and resets `z`); a fix or tweak raises `z`; an API change that breaks a client (above all the dictionary and teacher endpoints the upload skill uses) raises `x` (and resets `y` and `z`). Docs, tests, CI and refactoring don't bump.
-- Bump it once, in the last commit of the branch (`Bump the version to 0.4.0`), and say in the PR description which part you raised and why. If unsure whether a change breaks the API, ask.
+- Bump it once, in the last commit of the branch (`Bump the version to 1.1.0`), together with that version's entry in `classroom/CHANGELOG.md` (a **Breaking changes** group first when `x` is raised), and say in the PR description which part you raised and why. If unsure whether a change breaks the API, ask.
+- A breaking change also means adapting `.claude/skills/upload-dictionary-import/upload-dictionary.mjs` and raising its `API_MAJOR`: the script reads `GET /api/version` and refuses to write to an API of another major version.
+- After the branch is merged, the merge commit gets an annotated tag `v<version>` (tags are pushed only when the user asks).
 
 ## Git workflow
 
