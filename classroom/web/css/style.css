@@ -510,6 +510,14 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   animation: wfDraw .7s calc(1.5s + var(--k) * .075s) ease-out both, wfLight .6s calc(2.2s + var(--k) * .075s) ease-out both;
 }
 
+/* the version, faint at the bottom edge; before the stage in the DOM, so the code box covers it where they meet */
+.sp-version {
+  position: fixed; left: 50%; bottom: 6px; transform: translateX(-50%); pointer-events: none; user-select: none;
+  padding: 0 9px; border-radius: 99px; background: rgba(255, 255, 255, .5);
+  font-size: .75rem; font-weight: 700; letter-spacing: .04em; color: rgba(43, 35, 80, .65);
+}
+.sp-version:empty { display: none; }
+
 /* the code box slides open when the animation is done */
 .sp-login {
   width: min(100%, 460px); display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden;

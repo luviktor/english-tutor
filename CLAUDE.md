@@ -14,7 +14,7 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 ## Repository layout
 
 - `demo/` – the demo app (details below).
-- `classroom/` – `web/` (frontend copied from `demo/web`; pupils keep the demo's look, teachers get a calmer one), `api/` (`EnglishTutor.Api`), `tests/` (xUnit), `EnglishTutor.slnx`, `swa-cli.config.json`.
+- `classroom/` – `web/` (frontend copied from `demo/web`; pupils keep the demo's look, teachers get a calmer one), `api/` (`EnglishTutor.Api`), `tests/` (xUnit), `EnglishTutor.slnx`, `swa-cli.config.json`, `CHANGELOG.md` (see Versioning).
 - `infra/main.bicep` – Static Web App `swa-englishtutor` with its custom domains `erkel2023b.hu` and `www.erkel2023b.hu` (the DNS records are at the registrar, see `infra/README.md`), Cosmos account `cosmos-englishtutor-<suffix>`, database `englishtutor`, containers `progress` and `dictionary`. The API's key can't create containers in Azure, so deploy the template before code that uses a new one.
 - `.github/workflows/pages.yml` – deploys the demo to GitHub Pages; `.github/workflows/azure-static-web-apps.yml` – tests and deploys `classroom/` to Azure on pushes to `master`.
 - `.claude/launch.json` – preview configs (`english-tutor`, `pages-preview`, `classroom`).
@@ -47,11 +47,11 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 - `Dictionary/`: the class's words, phrases and topics, entered by the teachers (no built-in words; the demo's CSV is not used here). Entries and topics are documents of the Cosmos container `dictionary` (`DictionaryDocument`, partition key `/classId` = `"class"`, told apart by `type`), behind `IDictionaryStore`/`CosmosDictionaryStore`. `DictionaryResponse.Build` turns them into the `GET /api/dictionary` JSON with the teachers' warnings, and `DictionaryProvider` caches that for 30 s per instance. `DictionaryService` holds the teachers' changes: `DictionaryRules` validates (Hungarian messages), a change names the `revision` it is based on (a stale one gets the current version back, using the ETags), spellings are compared with `Spelling.LettersOnly` like the typing game does, and every success calls `Invalidate()` so it shows at once. Entry ids are generated and never change; they are the keys the pupils' progress is saved under. A word may have no picture: its `visual` is then empty (frontend: `hasPicture()` in `web/js/dict.js`) and the games must not rely on a picture for it. Plan and rules: `docs/teacher-dictionary.md`.
 - `Auth/Roster.cs`: pupils from the `PUPILS_JSON` setting and teachers from `TEACHERS_JSON`. A password alone identifies its owner; passwords are compared by letters and digits only (no case, accents, spaces or hyphens). Every request after login carries it in `X-EnglishTutor-Password`; `RequestIdentity.AuthorizeAsync` returns 401/403.
 - `Progress/`: one Cosmos document per pupil, keyed by pupil id (`id`, `revision`, `updatedAt`, `summary`, `data`). `ProgressService.SaveAsync` rejects a save based on an old revision (409 with the newer copy) using ETags. `ProgressSummary` is computed on every save (counting only words still in the dictionary, via `ICurrentWords`) and feeds the teacher's class table. `CosmosProgressStore` uses Gateway mode and System.Text.Json; against the local emulator (Development only) it accepts the self-signed certificate and creates the database and container.
-- `Functions/`: `GET /api/dictionary` (login required), `POST /api/login`, `GET`/`PUT /api/progress`, `GET /api/teacher/class`, and the teacher endpoints under `/api/teacher/` for entries, topics and the topic order (`TeacherDictionaryFunctions`).
+- `Functions/`: `GET /api/version` (anonymous; `AppVersion` reads it from the assembly), `GET /api/dictionary` (login required), `POST /api/login`, `GET`/`PUT /api/progress`, `GET /api/teacher/class`, and the teacher endpoints under `/api/teacher/` for entries, topics and the topic order (`TeacherDictionaryFunctions`).
 - Secrets live in SWA environment variables (Azure) or the gitignored `classroom/api/local.settings.json` (local). **The repository is public: never commit real passwords or connection strings.**
 
 **`classroom/web/`** – same structure as the demo frontend, plus:
-- `api.js`: password header, `login`, progress with revisions, `getClass`, the dictionary request (not through `request()`, so the browser can revalidate with the ETag) and the teacher's dictionary calls; a 401 sends the user back to the login screen.
+- `api.js`: password header, `login`, `getVersion` (the label on the login screen and in the teacher's header; never throws), progress with revisions, `getClass`, the dictionary request (not through `request()`, so the browser can revalidate with the ETag) and the teacher's dictionary calls; a 401 sends the user back to the login screen.
 - `dict.js`: the shared `dict` (`words`, `topics` incl. empty ones, `warnings`); pupil screens list `practiceTopics()` (topics with words) and show `NO_WORDS` when there are none; `noteLine()` shows a word's note.
 - `state.js`: loads the pupil's progress, keeps a local copy in localStorage, saves at most every 5 s, at the end of each round (`saveNow`) and when the page is hidden, retries failures, and adopts the server's copy on a 409 or when a long-hidden tab finds a newer revision.
 - `splash.js` (the login, see below) and `screens/teacher.js` are not router screens: `main.js` drives them directly; `account.js` handles logout (important on shared school computers). `teacher.js` has two tabs: the class table and `teacher-dictionary.js` (topics, entries, the entry form with its live preview). The dictionary tab applies the server's answers to the shared `dict` instead of reloading it, and everything a teacher typed goes into the page as text (`el()` children), never as HTML.
@@ -61,6 +61,15 @@ Naming: the application is **EnglishTutor** in every project, resource and ident
 ## Word-learning rules (spread across `state.js`/`session.js`)
 
 Each word has level 0–5; a correct answer raises it by at most +2 per day (so gold needs several days), a wrong one lowers it. In the classroom version the word's key is the dictionary entry's generated id, so correcting a spelling keeps the progress (in the demo it is the lower-case English text).
+
+## Versioning
+
+`classroom/` has one `x.y.z` version (API and frontend deploy together), starting at 1.0.0: `<Version>` in `classroom/api/EnglishTutor.Api.csproj`, shown on the login screen and in the teacher's header through `GET /api/version`; `classroom/CHANGELOG.md` says what each version changed. The demo has none. Rules, with what counts as a breaking API change, are in `classroom/README.md#versioning`:
+
+- A feature raises `y` (and resets `z`); a fix or tweak raises `z`; an API change that breaks a client (above all the dictionary and teacher endpoints the upload skill uses) raises `x` (and resets `y` and `z`). Docs, tests, CI and refactoring don't bump.
+- Bump it once, in the last commit of the branch (`Bump the version to 1.1.0`), together with that version's entry in `classroom/CHANGELOG.md` (a **Breaking changes** group first when `x` is raised), and say in the PR description which part you raised and why. If unsure whether a change breaks the API, ask.
+- A breaking change also means adapting `.claude/skills/upload-dictionary-import/upload-dictionary.mjs` and raising its `API_MAJOR`: the script reads `GET /api/version` and refuses to write to an API of another major version.
+- When the branch is final, its last commit gets an annotated tag `v<version>` (it stays reachable because PRs are merged with a merge commit). Tags are pushed only when the user asks.
 
 ## Git workflow
 

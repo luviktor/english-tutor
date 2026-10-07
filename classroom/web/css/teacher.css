@@ -71,6 +71,7 @@ code { background: var(--surface-2); padding: 1px 6px; border-radius: 6px; }
   background: linear-gradient(135deg, #6366f1, var(--primary-d)); color: #fff; font-weight: 800; font-size: .95rem; letter-spacing: -.02em;
 }
 .hud-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-version { font-weight: 600; color: var(--ink-soft); }
 .hud-chips { display: flex; gap: 8px; align-items: center; margin-left: auto; }
 .chip {
   display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px;

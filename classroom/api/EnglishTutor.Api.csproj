@@ -7,6 +7,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>EnglishTutor.Api</RootNamespace>
+    <!-- The version of the whole classroom app (API and frontend deploy together), x.y.z: see "Versioning" in classroom/README.md.
+         The frontend reads it from GET /api/version. Bump it in the last commit of a feature branch. -->
+    <Version>1.0.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

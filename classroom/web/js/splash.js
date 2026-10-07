@@ -72,6 +72,10 @@ export function runSplash({ message = '' } = {}) {
       el('div', { class: 'sp-row' }, input, toggle),
       enter);
 
+    // ---- the version, faint at the bottom; it appears when the API has answered (which also wakes the API up)
+    const version = el('div', { class: 'sp-version' });
+    api.getVersion().then(v => { if (v) version.textContent = `v${v}`; });
+
     // ---- the whole splash
     const root = el('div', { class: 'splash', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Belépés' },
       el('div', { class: 'sp-sky', 'aria-hidden': 'true' },
@@ -79,6 +83,7 @@ export function runSplash({ message = '' } = {}) {
         SPARKLES.map(([emoji, x, y], i) => el('span', { class: 'sp-spark', style: { left: x + '%', top: y + '%', '--i': i } }, emoji))),
       // the school, as wide as the window and drawn over the sky; the title and the password box lie on top of it
       el('div', { class: 'sp-wire', html: schoolWireframeSvg() }),
+      version,
       el('div', { class: 'sp-stage' },
         el('div', { class: 'sp-intro' }, titleNode()),
         el('div', { class: 'sp-login' }, el('div', { class: 'sp-login-in' }, card))));
