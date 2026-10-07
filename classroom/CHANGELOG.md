@@ -6,6 +6,17 @@ raises which number. A change that breaks the API is listed under **Breaking cha
 
 The entry of a version is written in the last commit of its branch, together with the version bump.
 
+## 1.1.0 – 2026-10-07
+
+### Teachers
+
+- **Szótár:** the topics can be folded. A click on a topic's name hides or shows its entries (▾/▸), and **Mind
+  összecsukása** / **Mind kinyitása** does it for all topics, which makes a long dictionary easier to move around in. A
+  search always shows the topics it finds unfolded, a topic with an open entry form stays unfolded, and saving an entry
+  unfolds its topic. Which topics are folded is remembered while the page stays open.
+
+The API did not change.
+
 ## 1.0.0 – 2026-10-07
 
 The first numbered release: what the app does, and the API that the later versions are measured against.

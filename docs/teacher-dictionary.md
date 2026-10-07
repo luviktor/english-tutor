@@ -226,6 +226,10 @@ Both teachers may edit at the same time.
     words only change with a new deployment.
 - **Szótár tab:** topics in their order, each with its entries and their count, plus a search across all
   entries. Each entry shows who changed it last and when. Each topic has:
+  - ▾/▸ in front of its name to fold its entries away or show them again (and "Mind összecsukása" / "Mind
+    kinyitása" above the list for all topics at once). Topics start unfolded; what is folded is remembered while
+    the page stays open. A search shows every topic it finds unfolded, a topic with an open entry form stays
+    unfolded, and saving an entry unfolds its topic;
   - ✏️ to change its name, emoji or colour;
   - ▲▼ to move it (not while a search is active);
   - 🗑️ to delete it, when it has no entries;
