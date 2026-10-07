@@ -238,6 +238,12 @@ span.nopic { display: flex; align-items: center; justify-content: center; width:
 .dict-topic-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .dict-topic-head h3 { margin: 0; }
 .dict-topic-emoji { font-size: 1.6rem; font-family: var(--emoji); }
+.dict-topic-toggle { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 8px 0 0; border: 0; border-radius: 10px;
+  background: none; text-align: left; letter-spacing: inherit; }
+.dict-topic-toggle:hover:not(:disabled) { color: var(--primary-d); }
+.dict-topic-toggle:disabled { color: inherit; cursor: default; }
+.dict-chevron { width: 1em; text-align: center; color: var(--ink-faint); }
+.dict-topic-toggle:disabled .dict-chevron { opacity: .35; }
 .dict-actions { display: flex; gap: 4px; margin-left: auto; }
 .icon-btn {
   width: 36px; height: 36px; display: inline-grid; place-items: center; border-radius: 10px; font-family: var(--emoji); font-size: 1rem;

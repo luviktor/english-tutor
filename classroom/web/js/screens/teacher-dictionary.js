@@ -75,6 +75,7 @@ export function mount(container) {
   let busy = false;          // a request is running: the buttons are off
   let warningsStale = false; // the warnings are from the last load; the changes since then are not in them
   let message = null;        // { text, kind: 'ok' | 'no' } above the list
+  const folded = new Set();  // ids of the topics whose entries are hidden; kept for as long as the page is open
 
   const messageBox = el('div', { class: 'dict-message', role: 'status' });
   const warningBox = el('div');
@@ -85,7 +86,8 @@ export function mount(container) {
   });
   const newEntry = el('button', { class: 'btn btn-small btn-green', type: 'button', onclick: () => openNewEntry() }, '＋ Új szó / kifejezés');
   const newTopic = el('button', { class: 'btn btn-small btn-blue', type: 'button', onclick: () => open('new-topic') }, '＋ Új téma');
-  container.replaceChildren(el('div', { class: 'dict-toolbar' }, search, newEntry, newTopic), messageBox, warningBox, list);
+  const foldAll = el('button', { class: 'btn btn-small btn-ghost', type: 'button', onclick: () => toggleAll() });
+  container.replaceChildren(el('div', { class: 'dict-toolbar' }, search, newEntry, newTopic, foldAll), messageBox, warningBox, list);
   draw();
   return { reload };
 
@@ -112,6 +114,21 @@ export function mount(container) {
   }
 
   function say(text, kind) { message = { text, kind }; }
+
+  /** Folds or unfolds one topic. The redraw replaces its button, so the keyboard focus is put back on the new one. */
+  function toggleTopic(id) {
+    if (folded.has(id)) folded.delete(id); else folded.add(id);
+    draw();
+    [...list.querySelectorAll('.dict-topic-toggle')].find(b => b.dataset.topic === id)?.focus();
+  }
+
+  /** Folds every topic, or unfolds them all when they are all folded already. */
+  function toggleAll() {
+    if (allFolded()) folded.clear(); else dict.topics.forEach(t => folded.add(t.id));
+    draw();
+  }
+
+  function allFolded() { return dict.topics.length > 0 && dict.topics.every(t => folded.has(t.id)); }
 
   /** The open form: built once, then reused by every redraw until something asks for a fresh one (`formNode = null`). */
   function formFor(make) {
@@ -230,6 +247,7 @@ export function mount(container) {
         const saved = entry ? await api.updateEntry(entry.key, { ...body, revision: entry.revision }) : await api.addEntry(body);
         update({ words: entry ? dict.words.map(w => (w.key === saved.key ? saved : w)) : [...dict.words, saved] });
         lastTopicId = saved.topicId;
+        folded.delete(saved.topicId); // so that the entry just saved is in sight
         formError = null;
         formNode = null;
         if (entry) {
@@ -274,6 +292,8 @@ export function mount(container) {
     warningBox.replaceChildren(...warnings());
 
     const q = fold(query.trim());
+    foldAll.textContent = allFolded() ? '▸ Mind kinyitása' : '▾ Mind összecsukása';
+    foldAll.disabled = dict.topics.length === 0 || q !== ''; // a search shows every topic it finds, open
     const matches = w => !q || fold([w.english, ...w.alts, w.hu, w.note, w.topic].join(' ')).includes(q);
     const cards = [];
     if (editing === 'new-topic') cards.push(el('section', { class: 'card dict-topic' }, formFor(() => topicForm(null))));
@@ -283,7 +303,7 @@ export function mount(container) {
       // The search never hides the entry or topic that is being edited.
       const shown = all.filter(w => matches(w) || w.key === editing);
       if (q && shown.length === 0 && topic.id !== editing) return;
-      cards.push(topicCard(topic, index, all, shown, !q));
+      cards.push(topicCard(topic, index, all, shown, q !== ''));
     });
     if (cards.length === 0) {
       cards.push(el('p', { class: 'empty' }, q ? 'Nincs találat.' : 'Még nincs téma. Kezdd egy új témával!'));
@@ -299,25 +319,35 @@ export function mount(container) {
       warningsStale && el('p', { class: 'small' }, 'A figyelmeztetések a legutóbbi betöltéskor készültek; a 🔄 Frissítés gombbal újra elkészülnek.'))];
   }
 
-  function topicCard(topic, index, all, shown, reorderable) {
+  function topicCard(topic, index, all, shown, searching) {
+    // A search lists what it found, and the entry being edited stays in sight: neither can be folded away.
+    const stayOpen = searching ? 'Keresés közben minden téma nyitva van.'
+      : all.some(w => w.key === editing) ? 'Szerkesztés közben a téma nyitva marad.'
+        : null;
+    const hidden = folded.has(topic.id) && !stayOpen;
     const head = editing === topic.id
       ? formFor(() => topicForm(topic))
       : el('div', { class: 'dict-topic-head' },
+        el('h3', {}, el('button', {
+          class: 'dict-topic-toggle', type: 'button', dataset: { topic: topic.id }, 'aria-expanded': String(!hidden),
+          title: stayOpen ?? (hidden ? 'Kinyitás' : 'Összecsukás'), disabled: stayOpen !== null, onclick: () => toggleTopic(topic.id),
+        },
+        el('span', { class: 'dict-chevron', 'aria-hidden': 'true' }, hidden ? '▸' : '▾'),
         el('span', { class: 'dict-topic-emoji', 'aria-hidden': 'true' }, topic.emoji),
-        el('h3', {}, topic.name),
+        topic.name)),
         el('span', { class: 'small' }, `${all.length} bejegyzés`),
         el('div', { class: 'dict-actions' },
           iconButton('＋', 'Új szó vagy kifejezés ebbe a témába', () => openNewEntry(topic.id)),
           iconButton('✏️', 'Átnevezés, jel és szín', () => open(topic.id)),
-          reorderable && iconButton('▲', 'Feljebb', () => moveTopic(index, -1), index === 0),
-          reorderable && iconButton('▼', 'Lejjebb', () => moveTopic(index, 1), index === dict.topics.length - 1),
+          !searching && iconButton('▲', 'Feljebb', () => moveTopic(index, -1), index === 0),
+          !searching && iconButton('▼', 'Lejjebb', () => moveTopic(index, 1), index === dict.topics.length - 1),
           iconButton('🗑️', all.length > 0 ? 'Csak üres téma törölhető' : 'Törlés', () => deleteTopic(topic), all.length > 0)));
     return el('section', { class: 'card dict-topic', style: { '--c': topic.color } },
       head,
-      reorderable && all.length < MIN_TOPIC_ENTRIES && el('p', { class: 'dict-hint' }, all.length === 0
+      !searching && !hidden && all.length < MIN_TOPIC_ENTRIES && el('p', { class: 'dict-hint' }, all.length === 0
         ? `Üres téma. A feleletválasztós és a párosító játékokhoz legalább ${MIN_TOPIC_ENTRIES} bejegyzés kell.`
         : `Csak ${all.length} bejegyzés van; a feleletválasztós és a párosító játékokhoz legalább ${MIN_TOPIC_ENTRIES} kell.`),
-      shown.length > 0 && el('ul', { class: 'dict-entries' }, shown.map(entryRow)));
+      !hidden && shown.length > 0 && el('ul', { class: 'dict-entries' }, shown.map(entryRow)));
   }
 
   function entryRow(word) {
