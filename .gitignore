@@ -63,3 +63,4 @@ _publish/
 
 # Prepared dictionary imports: word lists, see .claude/skills/prepare-dictionary-import
 classroom/imports/
+temp/
