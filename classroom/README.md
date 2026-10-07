@@ -151,6 +151,8 @@ container `dictionary` (design and rules: [`docs/teacher-dictionary.md`](../docs
 
 * Create the topics first (**＋ Új téma**: name, emoji, colour), then **＋ Új szó / kifejezés**. The form keeps
   itself open after each save, so the first set can be typed in quickly. A topic's own **＋** starts it in that topic.
+* A click on a topic's name folds its entries away (▾/▸); **Mind összecsukása** / **Mind kinyitása** does it for every
+  topic. A search always shows the topics it finds unfolded.
 * An entry has a kind (*szó* or *kifejezés*; the form suggests a phrase when the English text has a space), the
   English text that is shown and spoken, other accepted spellings (one per line, up to 5, e.g. `thanks` next to
   `thank you`), the Hungarian meaning, an optional note, a topic and a picture (an emoji or a colour; an
